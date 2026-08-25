@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}CSV 분석 - 사출 데이터 대시보드{% endblock %}
+
+{% block content %}
+<section>
+  <h2>CSV 분석</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="upload-form">
+    <input type="file" name="csv_file" accept=".csv" required>
+    <button type="submit">업로드 및 분석</button>
+  </form>
+
+  {% if error %}
+  <p class="error">{{ error }}</p>
+  {% endif %}
+
+  {% if result %}
+  <div class="result">
+    <p>전체 행 수: {{ result.row_count }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          {% for col in result.columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in result.preview %}
+        <tr>
+          {% for col in result.columns %}
+          <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

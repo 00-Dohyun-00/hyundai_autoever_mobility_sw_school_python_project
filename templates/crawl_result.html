@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}크롤링 - 사출 데이터 대시보드{% endblock %}
+
+{% block content %}
+<section>
+  <h2>크롤링 결과</h2>
+
+  {% if results %}
+  <ul class="crawl-list">
+    {% for item in results %}
+    <li>
+      <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+      <p>{{ item.summary }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>아직 크롤링 결과가 없습니다.</p>
+  {% endif %}
+</section>
+{% endblock %}
