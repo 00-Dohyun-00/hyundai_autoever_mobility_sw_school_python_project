@@ -21,10 +21,68 @@ def analysis_content():
     return render_template("_analysis_result.html", result=result)
 
 
+
+# ============================================================
+# 크롤링 검색 / 결과 페이지
+#
+# 예:
+# /crawl-result
+# /crawl-result?keyword=사출
+# /crawl-result?keyword=금형
+# ============================================================
+
 @app.route("/crawl-result")
 def crawl_result():
-    results = get_crawl_results()
-    return render_template("crawl_result.html", results=results)
+
+    # --------------------------------------------------------
+    # URL에서 keyword 받기
+    # --------------------------------------------------------
+
+    keyword = request.args.get(
+        "keyword",
+        ""
+    ).strip()
+
+
+    # --------------------------------------------------------
+    # 기본값
+    # --------------------------------------------------------
+
+    results = []
+    searched = False
+
+
+    # --------------------------------------------------------
+    # 검색어가 있으면 실제 크롤링 실행
+    # --------------------------------------------------------
+
+    if keyword:
+
+        searched = True
+
+        print(
+            f"[Flask] 검색 시작: {keyword}"
+        )
+
+        results = get_crawl_results(
+            keyword
+        )
+
+        print(
+            f"[Flask] 검색 완료: {len(results)}개"
+        )
+
+
+    # --------------------------------------------------------
+    # Jinja2로 전달
+    # --------------------------------------------------------
+
+    return render_template(
+        "crawl_result.html",
+        results=results,
+        keyword=keyword,
+        searched=searched
+    )
 
 
 if __name__ == "__main__":
