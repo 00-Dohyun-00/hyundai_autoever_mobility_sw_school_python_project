@@ -25,32 +25,20 @@ MEAN_SELECTOR = 'p.mean[lang="ko"]'
 
 # ============================================================
 # Selenium Chrome Driver 생성
-#
-# headless=True
-# → 크롬 창을 화면에 띄우지 않고 실행
-#
-# 동적 크롤링은 그대로 유지됨
+# Chrome 창은 보이지 않지만 동적 크롤링은 그대로 수행
 # ============================================================
 
-def create_driver(headless=True):
+def create_driver():
     try:
         options = webdriver.ChromeOptions()
 
-        # ----------------------------------------------------
         # Chrome 창 숨기기
-        # ----------------------------------------------------
-        if headless:
-            options.add_argument("--headless=new")
+        options.add_argument("--headless=new")
 
-        # ----------------------------------------------------
-        # Chrome 설정
-        # ----------------------------------------------------
+        # 브라우저 설정
         options.add_argument("--disable-notifications")
         options.add_argument("--disable-popup-blocking")
         options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-
-        # headless에서는 화면 크기를 직접 지정
         options.add_argument("--window-size=1920,1080")
 
         driver = webdriver.Chrome(
@@ -68,7 +56,7 @@ def create_driver(headless=True):
 
 
 # ============================================================
-# 뜻 텍스트 추출
+# 현재 페이지의 뜻 텍스트 추출
 # ============================================================
 
 def extract_meanings(driver):
@@ -93,7 +81,7 @@ def extract_meanings(driver):
             if not text:
                 continue
 
-            # 같은 뜻이 중복으로 들어가는 것 방지
+            # 중복 방지
             if text not in meanings:
                 meanings.append(
                     text
@@ -109,7 +97,7 @@ def extract_meanings(driver):
 
 
 # ============================================================
-# 더보기 버튼 처리
+# "단어 더보기" 버튼 처리
 # ============================================================
 
 def click_more_button(driver):
@@ -118,14 +106,12 @@ def click_more_button(driver):
         MORE_BUTTON_XPATH
     )
 
-    # 더보기 버튼이 없으면 종료
     if len(more_buttons) == 0:
         return False
 
     more_button = more_buttons[0]
 
     try:
-        # 버튼 위치로 이동
         driver.execute_script(
             """
             arguments[0].scrollIntoView({
@@ -136,7 +122,6 @@ def click_more_button(driver):
             more_button
         )
 
-        # 클릭 가능할 때까지 기다림
         WebDriverWait(
             driver,
             5
@@ -152,7 +137,6 @@ def click_more_button(driver):
         more_button.click()
 
     except ElementClickInterceptedException:
-        # 일반 클릭 실패 시 JavaScript 클릭
         try:
             driver.execute_script(
                 "arguments[0].click();",
@@ -176,30 +160,10 @@ def click_more_button(driver):
 
 
 # ============================================================
-# 네이버 국어사전 검색
-#
-# keyword에 원하는 검색어를 넣으면 됨
+# 네이버 국어사전 동적 검색
 # ============================================================
 
 def search_dictionary(keyword, driver):
-    """
-    네이버 국어사전에서 원하는 단어를 검색하고
-    검색된 뜻을 list 형태로 반환한다.
-
-    Parameters
-    ----------
-    keyword : str
-        사용자가 입력한 검색어
-
-    driver : webdriver.Chrome
-        Selenium Chrome Driver
-
-    Returns
-    -------
-    list[str]
-        검색된 뜻 목록
-    """
-
     keyword = keyword.strip()
 
     if not keyword:
@@ -263,7 +227,7 @@ def search_dictionary(keyword, driver):
     )
 
     # ========================================================
-    # 검색 결과 기다리기
+    # 검색 결과 로딩 대기
     # ========================================================
 
     try:
@@ -272,16 +236,13 @@ def search_dictionary(keyword, driver):
             10
         ).until(
             lambda d:
-
             len(
                 d.find_elements(
                     By.CSS_SELECTOR,
                     MEAN_SELECTOR
                 )
             ) > 0
-
             or
-
             len(
                 d.find_elements(
                     By.XPATH,
@@ -301,7 +262,7 @@ def search_dictionary(keyword, driver):
             )
 
     # ========================================================
-    # 현재 화면 뜻 가져오기
+    # 현재 뜻 가져오기
     # ========================================================
 
     initial_meanings = extract_meanings(
@@ -327,7 +288,6 @@ def search_dictionary(keyword, driver):
                 5
             ).until(
                 lambda d:
-
                 len(
                     d.find_elements(
                         By.CSS_SELECTOR,
@@ -352,7 +312,7 @@ def search_dictionary(keyword, driver):
             f"'{keyword}'에 대한 검색 결과가 없습니다."
         )
 
-    # 실제 검색 결과 페이지 주소
+    # 검색 결과 페이지 주소
     result_url = driver.current_url
 
     return meanings, result_url
@@ -374,47 +334,22 @@ def close_driver(driver):
 
 
 # ============================================================
-# ★ Flask / Jinja2에서 호출하는 최종 함수
+# Flask / Jinja2에서 사용하는 최종 함수
 #
-# 이제 keyword를 외부에서 받는다.
-#
-# 예:
+# 사용 예:
 #
 # get_crawl_results("사출")
 # get_crawl_results("자동차")
 # get_crawl_results("금형")
+#
+# 검색어 없이 호출해도 Flask가 터지지 않음
 # ============================================================
 
-def get_crawl_results(keyword):
-    """
-    사용자가 입력한 검색어를 네이버 국어사전에서
-    동적으로 크롤링한다.
-
-    Flask / Jinja2에서 바로 사용할 수 있도록
-    list[dict] 형태로 반환한다.
-
-    Parameters
-    ----------
-    keyword : str
-        사용자가 입력한 검색어
-
-    Returns
-    -------
-    list[dict]
-
-        [
-            {
-                "title": "...",
-                "url": "...",
-                "summary": "..."
-            }
-        ]
-    """
-
-    # 검색어 앞뒤 공백 제거
+def get_crawl_results(keyword=""):
     keyword = keyword.strip()
 
-    # 검색어가 없으면 빈 결과
+    # 검색어가 전달되지 않은 경우
+    # TypeError 대신 빈 리스트 반환
     if not keyword:
         return []
 
@@ -422,15 +357,13 @@ def get_crawl_results(keyword):
 
     try:
         # ====================================================
-        # Chrome을 화면에 띄우지 않고 실행
+        # Headless Chrome 실행
         # ====================================================
 
-        driver = create_driver(
-            headless=True
-        )
+        driver = create_driver()
 
         # ====================================================
-        # 사용자가 입력한 검색어로 크롤링
+        # 사용자가 입력한 검색어로 동적 크롤링
         # ====================================================
 
         meanings, result_url = search_dictionary(
@@ -439,7 +372,7 @@ def get_crawl_results(keyword):
         )
 
         # ====================================================
-        # Flask / Jinja2 전달용 결과 생성
+        # Flask / Jinja2 전달용 데이터 생성
         # ====================================================
 
         results = []
@@ -466,7 +399,6 @@ def get_crawl_results(keyword):
         return []
 
     finally:
-        # Selenium 종료
         close_driver(
             driver
         )
