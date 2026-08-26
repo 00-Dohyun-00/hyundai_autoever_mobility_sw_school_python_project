@@ -55,57 +55,67 @@
     </details>
   </div>
 
-  {% for model in c.models %}
   <div class="card">
     <div class="section-heading">
-      <span class="section-badge">{{ loop.index + 1 }}</span>
-      <h3>분류모델 {{ loop.index }} - {{ model.name }}</h3>
+      <span class="section-badge">2</span>
+      <h3>분류모델</h3>
     </div>
-    <p class="caption">판정 threshold = {{ "%.2f"|format(model.threshold) }} (이 값 이상이면 불량으로 판정)</p>
+    <p class="caption">확인할 모델을 선택하세요.</p>
 
-    <div class="metric-row">
-      <div class="metric-card metric-accuracy">
-        <span class="metric-label">Accuracy</span>
-        <span class="metric-value">{{ "%.3f"|format(model.metrics.accuracy) }}</span>
-      </div>
-      <div class="metric-card metric-precision">
-        <span class="metric-label">Precision</span>
-        <span class="metric-value">{{ "%.3f"|format(model.metrics.precision) }}</span>
-      </div>
-      <div class="metric-card metric-recall">
-        <span class="metric-label">Recall</span>
-        <span class="metric-value">{{ "%.3f"|format(model.metrics.recall) }}</span>
-      </div>
-      <div class="metric-card metric-f1">
-        <span class="metric-label">F1 Score</span>
-        <span class="metric-value">{{ "%.3f"|format(model.metrics.f1) }}</span>
-      </div>
-      <div class="metric-card metric-auc">
-        <span class="metric-label">AUC</span>
-        <span class="metric-value">{{ "%.3f"|format(model.metrics.auc) }}</span>
-      </div>
-    </div>
+    <select id="model-select" class="model-select">
+      {% for model in c.models %}
+      <option value="model-{{ loop.index0 }}">분류모델 {{ loop.index }} - {{ model.name }}</option>
+      {% endfor %}
+    </select>
 
-    <div class="chart-grid">
-      <div class="chart-wrap">
-        <img class="chart" alt="{{ model.name }} Confusion Matrix"
-             src="data:image/png;base64,{{ model.confusion_matrix_img }}">
+    {% for model in c.models %}
+    <div class="model-panel{{ '' if loop.first else ' is-hidden' }}" data-model="model-{{ loop.index0 }}">
+      <p class="caption" style="margin-left: 0;">판정 threshold = {{ "%.2f"|format(model.threshold) }} (이 값 이상이면 불량으로 판정)</p>
+
+      <div class="metric-row">
+        <div class="metric-card metric-accuracy">
+          <span class="metric-label">Accuracy</span>
+          <span class="metric-value">{{ "%.3f"|format(model.metrics.accuracy) }}</span>
+        </div>
+        <div class="metric-card metric-precision">
+          <span class="metric-label">Precision</span>
+          <span class="metric-value">{{ "%.3f"|format(model.metrics.precision) }}</span>
+        </div>
+        <div class="metric-card metric-recall">
+          <span class="metric-label">Recall</span>
+          <span class="metric-value">{{ "%.3f"|format(model.metrics.recall) }}</span>
+        </div>
+        <div class="metric-card metric-f1">
+          <span class="metric-label">F1 Score</span>
+          <span class="metric-value">{{ "%.3f"|format(model.metrics.f1) }}</span>
+        </div>
+        <div class="metric-card metric-auc">
+          <span class="metric-label">AUC</span>
+          <span class="metric-value">{{ "%.3f"|format(model.metrics.auc) }}</span>
+        </div>
       </div>
-      <div class="chart-wrap">
-        <img class="chart" alt="{{ model.name }} ROC Curve"
-             src="data:image/png;base64,{{ model.roc_curve_img }}">
-      </div>
-      <div class="chart-wrap">
-        <img class="chart" alt="{{ model.name }} Feature Importance"
-             src="data:image/png;base64,{{ model.feature_importance_img }}">
+
+      <div class="chart-grid">
+        <div class="chart-wrap">
+          <img class="chart" alt="{{ model.name }} Confusion Matrix"
+               src="data:image/png;base64,{{ model.confusion_matrix_img }}">
+        </div>
+        <div class="chart-wrap">
+          <img class="chart" alt="{{ model.name }} ROC Curve"
+               src="data:image/png;base64,{{ model.roc_curve_img }}">
+        </div>
+        <div class="chart-wrap">
+          <img class="chart" alt="{{ model.name }} Feature Importance"
+               src="data:image/png;base64,{{ model.feature_importance_img }}">
+        </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 
   <div class="card">
     <div class="section-heading">
-      <span class="section-badge">4</span>
+      <span class="section-badge">3</span>
       <h3>결론</h3>
     </div>
 

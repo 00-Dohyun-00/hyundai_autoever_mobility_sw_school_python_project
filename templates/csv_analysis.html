@@ -18,10 +18,22 @@
     .then((res) => res.text())
     .then((html) => {
       document.getElementById("analysis-content").outerHTML = html;
+      initModelSelect();
     })
     .catch(() => {
       document.getElementById("analysis-content").innerHTML =
         '<p class="error">분석 중 오류가 발생했습니다.</p>';
     });
+
+  function initModelSelect() {
+    const select = document.getElementById("model-select");
+    if (!select) return;
+    const panels = document.querySelectorAll(".model-panel");
+    select.addEventListener("change", () => {
+      panels.forEach((panel) => {
+        panel.classList.toggle("is-hidden", panel.dataset.model !== select.value);
+      });
+    });
+  }
 </script>
 {% endblock %}
