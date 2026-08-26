@@ -1,0 +1,131 @@
+{% set c = result %}
+<div class="classification">
+
+  <div class="card">
+    <div class="section-heading">
+      <span class="section-badge">1</span>
+      <h3>데이터 개요</h3>
+    </div>
+    <p class="caption">정상:불량 비율이 불균형한 데이터입니다.</p>
+
+    <div class="metric-row">
+      <div class="metric-card metric-total">
+        <span class="metric-label">전체 샘플 수</span>
+        <span class="metric-value">{{ "{:,}".format(c.overview.total) }}</span>
+      </div>
+      <div class="metric-card metric-normal">
+        <span class="metric-label">정상(0)</span>
+        <span class="metric-value">{{ "{:,}".format(c.overview.normal_count) }}</span>
+        <span class="metric-sub">{{ "%.1f"|format(c.overview.normal_pct) }}%</span>
+      </div>
+      <div class="metric-card metric-defect">
+        <span class="metric-label">불량(1)</span>
+        <span class="metric-value">{{ "{:,}".format(c.overview.defect_count) }}</span>
+        <span class="metric-sub">{{ "%.1f"|format(c.overview.defect_pct) }}%</span>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="margin-top: 16px;">
+      <img class="chart chart-small" alt="Class Distribution"
+           src="data:image/png;base64,{{ c.overview.class_distribution_img }}">
+    </div>
+
+    <details class="preview-toggle">
+      <summary>데이터 미리보기 (상위 10행)</summary>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              {% for col in c.overview.columns %}
+              <th>{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in c.overview.preview %}
+            <tr>
+              {% for col in c.overview.columns %}
+              <td>{{ row[col] }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  {% for model in c.models %}
+  <div class="card">
+    <div class="section-heading">
+      <span class="section-badge">{{ loop.index + 1 }}</span>
+      <h3>분류모델 {{ loop.index }} - {{ model.name }}</h3>
+    </div>
+    <p class="caption">판정 threshold = {{ "%.2f"|format(model.threshold) }} (이 값 이상이면 불량으로 판정)</p>
+
+    <div class="metric-row">
+      <div class="metric-card metric-accuracy">
+        <span class="metric-label">Accuracy</span>
+        <span class="metric-value">{{ "%.3f"|format(model.metrics.accuracy) }}</span>
+      </div>
+      <div class="metric-card metric-precision">
+        <span class="metric-label">Precision</span>
+        <span class="metric-value">{{ "%.3f"|format(model.metrics.precision) }}</span>
+      </div>
+      <div class="metric-card metric-recall">
+        <span class="metric-label">Recall</span>
+        <span class="metric-value">{{ "%.3f"|format(model.metrics.recall) }}</span>
+      </div>
+      <div class="metric-card metric-f1">
+        <span class="metric-label">F1 Score</span>
+        <span class="metric-value">{{ "%.3f"|format(model.metrics.f1) }}</span>
+      </div>
+      <div class="metric-card metric-auc">
+        <span class="metric-label">AUC</span>
+        <span class="metric-value">{{ "%.3f"|format(model.metrics.auc) }}</span>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-wrap">
+        <img class="chart" alt="{{ model.name }} Confusion Matrix"
+             src="data:image/png;base64,{{ model.confusion_matrix_img }}">
+      </div>
+      <div class="chart-wrap">
+        <img class="chart" alt="{{ model.name }} ROC Curve"
+             src="data:image/png;base64,{{ model.roc_curve_img }}">
+      </div>
+      <div class="chart-wrap">
+        <img class="chart" alt="{{ model.name }} Feature Importance"
+             src="data:image/png;base64,{{ model.feature_importance_img }}">
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="card">
+    <div class="section-heading">
+      <span class="section-badge">4</span>
+      <h3>결론</h3>
+    </div>
+
+    <ul class="conclusion-list">
+      {% for model in c.models %}
+      <li><strong>{{ model.name }}</strong>: AUC {{ "%.3f"|format(model.metrics.auc) }},
+        Recall {{ "%.3f"|format(model.metrics.recall) }} (threshold={{ "%.2f"|format(model.threshold) }})</li>
+      {% endfor %}
+    </ul>
+
+    <div class="callout">
+      <p>
+        두 모델의 AUC 차이가 크지 않습니다 (약 {{ "%.3f"|format(c.conclusion.auc_diff) }} 차이).
+        모델을 더 복잡한 것으로 바꿔도 성능이 극적으로 개선되지 않는 것으로 보아,
+        현재 성능의 병목은 모델 종류보다 불량(1) 데이터 수 자체가 적은 클래스 불균형에
+        있는 것으로 판단됩니다. 두 모델 모두 threshold(판정 기준)를 낮출수록 recall이 오르고
+        precision이 떨어지는 트레이드오프를 보이며, 이는 AUC로 대표되는 모델의 잠재력과
+        실제 판정 결과(recall/precision)가 서로 다른 것임을 보여줍니다.
+      </p>
+      <p class="caption" style="margin-left: 0;">Feature Importance 상 {{ c.conclusion.top_features }} 등이 두 모델 모두에서 상위권으로 나타났습니다.</p>
+    </div>
+  </div>
+</div>
