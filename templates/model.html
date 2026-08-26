@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}모델 예측 - 사출 데이터 대시보드{% endblock %}
+
+{% block content %}
+<section>
+  <h2>모델 예측</h2>
+
+  <div class="predict-layout">
+
+    <!-- 왼쪽: 활용 설정 -->
+    <div class="card predict-col predict-settings">
+      <h3>활용 설정</h3>
+
+      <form method="POST" action="{{ url_for('model_predict') }}" class="predict-form">
+        <label class="field-label" for="model_name">모델 선택</label>
+        <select id="model_name" name="model_name" class="field-select">
+          {% for name in model_options %}
+          <option value="{{ name }}" {{ "selected" if name == selected_model else "" }}>{{ name }}</option>
+          {% endfor %}
+        </select>
+
+        {% for name in model_options %}
+        <div class="model-info-block{{ '' if name == selected_model else ' is-hidden' }}" data-model="{{ name }}">
+          <p class="model-info-type">{{ model_info[name].type }}</p>
+          <table class="params-table">
+            <tbody>
+              {% for key, value in model_info[name].params.items() %}
+              <tr>
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endfor %}
+
+        <div class="field-group">
+          {% for field in feature_fields %}
+          <div class="field-item">
+            <label class="field-label" for="{{ field.name }}">{{ field.label }}</label>
+            <input
+              type="number"
+              step="any"
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              class="field-input"
+              placeholder="{{ field.name }}"
+              required
+            >
+          </div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="predict-button">예측하기</button>
+      </form>
+    </div>
+
+    <!-- 오른쪽: 모델 활용 결과 -->
+    <div class="card predict-col predict-result">
+      <h3>모델 활용 결과</h3>
+
+      {% if prediction %}
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>값</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>사용 모델</td>
+              <td>{{ prediction.model_name or selected_model }}</td>
+            </tr>
+            {% if prediction.inputs %}
+            {% for key, value in prediction.inputs.items() %}
+            <tr>
+              <td>{{ key }}</td>
+              <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            {% if prediction.probability is not none %}
+            <tr>
+              <td>불량 확률</td>
+              <td>{{ "%.1f"|format(prediction.probability * 100) }}%</td>
+            </tr>
+            {% endif %}
+            <tr class="{{ 'result-defect' if prediction.defect_label == 1 else 'result-normal' }}">
+              <td>예측 결과 (defect_label)</td>
+              <td>{{ "불량" if prediction.defect_label == 1 else "정상" }} ({{ prediction.defect_label }})</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty-state">예측 결과가 없습니다.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  (function () {
+    var select = document.getElementById("model_name");
+    var infoBlocks = document.querySelectorAll(".model-info-block");
+    select.addEventListener("change", function () {
+      infoBlocks.forEach(function (block) {
+        block.classList.toggle("is-hidden", block.dataset.model !== select.value);
+      });
+    });
+  })();
+</script>
+{% endblock %}

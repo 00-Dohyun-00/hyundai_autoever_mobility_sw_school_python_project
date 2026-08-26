@@ -9,6 +9,7 @@
   <header class="topbar">
     <h1><a href="{{ url_for('home') }}">사출 데이터 대시보드</a></h1>
     <nav>
+      <a href="{{ url_for('model_predict') }}">모델 예측</a>
       <a href="{{ url_for('crawl_result') }}">크롤링 결과</a>
     </nav>
   </header>

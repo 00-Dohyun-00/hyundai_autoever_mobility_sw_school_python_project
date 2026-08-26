@@ -173,13 +173,12 @@ body {
   margin: 4px 0 0 40px;
 }
 
-/* ---------- model select ---------- */
+/* ---------- select fields ---------- */
 
-.model-select {
+.model-select,
+.field-select {
   display: block;
   width: 100%;
-  max-width: 340px;
-  margin: 14px 0 4px 40px;
   padding: 10px 14px;
   font-size: 0.92rem;
   font-weight: 600;
@@ -196,9 +195,16 @@ body {
 }
 
 .model-select:hover,
-.model-select:focus {
+.model-select:focus,
+.field-select:hover,
+.field-select:focus {
   border-color: var(--color-primary);
   outline: none;
+}
+
+.model-select {
+  max-width: 340px;
+  margin: 14px 0 4px 40px;
 }
 
 .model-panel {
@@ -426,6 +432,148 @@ tbody tr:hover {
 
 .error {
   color: var(--color-danger);
+}
+
+/* ---------- model predict page ---------- */
+
+.predict-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .predict-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.predict-col h3 {
+  margin: 0 0 18px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 16px 0 6px;
+}
+
+.field-label:first-child {
+  margin-top: 0;
+}
+
+.field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 420px) {
+  .field-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-item .field-label {
+  margin: 0 0 6px;
+}
+
+.field-input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.field-input:hover,
+.field-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.predict-button {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px 16px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.predict-button:hover {
+  background: var(--color-primary-dark);
+}
+
+.model-info-block {
+  margin: 10px 0 4px;
+  padding: 12px 14px;
+  background: #fafbfc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.model-info-block.is-hidden {
+  display: none;
+}
+
+.model-info-type {
+  margin: 0 0 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #111827;
+}
+
+.model-info-block .params-table th,
+.model-info-block .params-table td {
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+
+.params-table td:first-child {
+  color: var(--color-text-muted);
+}
+
+.empty-state {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+tbody tr.result-normal {
+  background: var(--color-primary-soft);
+  font-weight: 700;
+}
+
+tbody tr.result-normal td {
+  color: var(--color-normal);
+}
+
+tbody tr.result-defect {
+  background: #fef2f2;
+  font-weight: 700;
+}
+
+tbody tr.result-defect td {
+  color: var(--color-defect);
 }
 
 /* ---------- crawling page ---------- */
