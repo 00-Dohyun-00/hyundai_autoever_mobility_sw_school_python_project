@@ -1,27 +1,16 @@
 {% extends "base.html" %}
 
-
-{% block title %}
-크롤링 - 사출 데이터 대시보드
-{% endblock %}
-
+{% block title %}크롤링 - 사출 데이터 대시보드{% endblock %}
 
 {% block content %}
 
 <section>
 
-  <h2>
-    크롤링 검색
-  </h2>
+  <h2>크롤링 검색</h2>
 
-
-  <!-- ===================================================== -->
-  <!-- 검색창 -->
-  <!-- GET 방식으로 Flask에 keyword 전달 -->
-  <!-- ===================================================== -->
 
   <form
-    action="{{ url_for('crawl_result') }}"
+    action="/crawl-result"
     method="get"
   >
 
@@ -29,49 +18,27 @@
       type="text"
       name="keyword"
       placeholder="검색어를 입력하세요"
-      value="{{ keyword or '' }}"
+      value="{{ request.args.get('keyword', '') }}"
       autocomplete="off"
       required
     >
 
-    <button
-      type="submit"
-    >
+    <button type="submit">
       검색
     </button>
 
   </form>
 
 
-  <!-- ===================================================== -->
-  <!-- 아직 검색하지 않은 상태 -->
-  <!-- ===================================================== -->
-
-  {% if not searched %}
-
-    <p>
-      검색어를 입력해주세요.
-    </p>
-
-  {% endif %}
+  {% set keyword = request.args.get('keyword', '') %}
 
 
-  <!-- ===================================================== -->
-  <!-- 검색을 실행한 상태 -->
-  <!-- ===================================================== -->
-
-  {% if searched %}
-
-    <hr>
+  {% if keyword %}
 
     <h2>
       "{{ keyword }}" 검색 결과
     </h2>
 
-
-    <!-- =================================================== -->
-    <!-- 검색 결과가 있는 경우 -->
-    <!-- =================================================== -->
 
     {% if results %}
 
@@ -86,15 +53,13 @@
 
           <li>
 
-            <h3>
-              <a
-                href="{{ item.url }}"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {{ item.title }}
-              </a>
-            </h3>
+            <a
+              href="{{ item.url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ item.title }}
+            </a>
 
             <p>
               {{ item.summary }}
@@ -107,21 +72,20 @@
       </ul>
 
 
-    <!-- =================================================== -->
-    <!-- 검색했지만 결과가 없는 경우 -->
-    <!-- =================================================== -->
-
     {% else %}
 
       <p>
         "{{ keyword }}"에 대한 검색 결과가 없습니다.
       </p>
 
-      <p>
-        터미널의 [Crawler 오류] 메시지를 확인해주세요.
-      </p>
-
     {% endif %}
+
+
+  {% else %}
+
+    <p>
+      검색어를 입력해주세요.
+    </p>
 
   {% endif %}
 

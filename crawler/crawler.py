@@ -1,8 +1,8 @@
-from urllib.parse import quote
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.common.exceptions import (
     TimeoutException,
@@ -13,21 +13,22 @@ from selenium.common.exceptions import (
 
 
 # ============================================================
-# 설정
+# 네이버 국어사전 설정
 # ============================================================
 
 NAVER_DICT_URL = "https://ko.dict.naver.com/#/main"
 
+SEARCH_XPATH = '//*[@id="ac_input"]'
 MORE_BUTTON_XPATH = '//*[@id="searchPage_word_more"]'
-
 MEAN_SELECTOR = 'p.mean[lang="ko"]'
 
 
 # ============================================================
 # Selenium Chrome Driver 생성
 #
-# Chrome 창은 사용자에게 표시되지 않음.
-# Selenium 동적 크롤링은 그대로 수행함.
+# --headless=new
+# → Chrome 창은 화면에 보이지 않음
+# → Selenium 동적 크롤링은 그대로 동작함
 # ============================================================
 
 def create_driver():
@@ -36,18 +37,12 @@ def create_driver():
 
         options = webdriver.ChromeOptions()
 
-        # ----------------------------------------------------
         # Chrome 창 숨기기
-        # ----------------------------------------------------
-
         options.add_argument(
             "--headless=new"
         )
 
-        # ----------------------------------------------------
-        # 기본 옵션
-        # ----------------------------------------------------
-
+        # 브라우저 설정
         options.add_argument(
             "--disable-notifications"
         )
@@ -64,16 +59,11 @@ def create_driver():
             "--window-size=1920,1080"
         )
 
-        # ----------------------------------------------------
-        # Driver 생성
-        # ----------------------------------------------------
-
         driver = webdriver.Chrome(
             options=options
         )
 
         return driver
-
 
     except WebDriverException as e:
 
@@ -85,7 +75,7 @@ def create_driver():
 
 
 # ============================================================
-# 현재 페이지에 표시된 뜻 추출
+# 뜻 텍스트 추출
 # ============================================================
 
 def extract_meanings(driver):
@@ -96,7 +86,6 @@ def extract_meanings(driver):
     )
 
     meanings = []
-
 
     for element in mean_elements:
 
@@ -109,37 +98,31 @@ def extract_meanings(driver):
             if text is None:
                 continue
 
-
             text = text.strip()
-
 
             if not text:
                 continue
 
-
-            # 중복 뜻 제거
+            # 같은 내용 중복 방지
             if text not in meanings:
 
                 meanings.append(
                     text
                 )
 
-
         except StaleElementReferenceException:
 
             continue
-
 
         except Exception:
 
             continue
 
-
     return meanings
 
 
 # ============================================================
-# 더보기 버튼 클릭
+# "단어 더보기" 버튼 처리
 # ============================================================
 
 def click_more_button(driver):
@@ -149,19 +132,16 @@ def click_more_button(driver):
         MORE_BUTTON_XPATH
     )
 
-
     # 더보기 버튼 없음
     if len(more_buttons) == 0:
 
         return False
 
-
     more_button = more_buttons[0]
-
 
     try:
 
-        # 버튼이 화면 가운데 오도록 이동
+        # 버튼 위치로 이동
         driver.execute_script(
             """
             arguments[0].scrollIntoView({
@@ -172,28 +152,55 @@ def click_more_button(driver):
             more_button
         )
 
-
-        # JavaScript 클릭
-        #
-        # headless 환경에서는 일반 click보다
-        # JavaScript click이 안정적인 경우가 많음
-        driver.execute_script(
-            "arguments[0].click();",
-            more_button
+        # 클릭 가능할 때까지 기다림
+        WebDriverWait(
+            driver,
+            5
+        ).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    MORE_BUTTON_XPATH
+                )
+            )
         )
 
+        # 일반 클릭
+        more_button.click()
 
         return True
 
-
     except ElementClickInterceptedException:
 
-        return False
+        # 일반 클릭 실패 시 JavaScript 클릭
+        try:
 
+            driver.execute_script(
+                "arguments[0].click();",
+                more_button
+            )
+
+            return True
+
+        except Exception:
+
+            return False
 
     except Exception:
 
-        return False
+        # 기타 클릭 오류도 JavaScript로 재시도
+        try:
+
+            driver.execute_script(
+                "arguments[0].click();",
+                more_button
+            )
+
+            return True
+
+        except Exception:
+
+            return False
 
 
 # ============================================================
@@ -205,12 +212,8 @@ def search_dictionary(
     driver
 ):
 
-    # ========================================================
-    # 검색어 검사
-    # ========================================================
-
+    # 검색어 정리
     keyword = keyword.strip()
-
 
     if not keyword:
 
@@ -220,54 +223,14 @@ def search_dictionary(
 
 
     # ========================================================
-    # 검색어 URL 인코딩
-    #
-    # 예:
-    #
-    # 금형
-    #
-    # →
-    #
-    # %EA%B8%88%ED%98%95
-    #
-    # ========================================================
-
-    encoded_keyword = quote(
-        keyword
-    )
-
-
-    # ========================================================
-    # 네이버 국어사전 검색 주소
-    #
-    # 사용자가 입력한 검색어로 직접 접속
-    # ========================================================
-
-    search_url = (
-        "https://ko.dict.naver.com/"
-        f"#/search?query={encoded_keyword}"
-    )
-
-
-    print(
-        f"[Crawler] 검색어: {keyword}"
-    )
-
-    print(
-        f"[Crawler] 검색 URL: {search_url}"
-    )
-
-
-    # ========================================================
-    # 검색 결과 페이지 접속
+    # 네이버 국어사전 접속
     # ========================================================
 
     try:
 
         driver.get(
-            search_url
+            NAVER_DICT_URL
         )
-
 
     except WebDriverException as e:
 
@@ -278,16 +241,58 @@ def search_dictionary(
 
 
     # ========================================================
-    # JavaScript가 검색 결과를 렌더링할 때까지 대기
-    #
-    # 뜻 또는 더보기 버튼이 나타날 때까지 기다림
+    # 검색창 로딩 기다리기
+    # ========================================================
+
+    wait = WebDriverWait(
+        driver,
+        15
+    )
+
+    try:
+
+        search_box = wait.until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    SEARCH_XPATH
+                )
+            )
+        )
+
+    except TimeoutException:
+
+        raise RuntimeError(
+            "검색창을 찾지 못했습니다.\n"
+            "네이버 국어사전 페이지 구조가 "
+            "변경되었을 수 있습니다."
+        )
+
+
+    # ========================================================
+    # 사용자가 입력한 검색어 검색
+    # ========================================================
+
+    search_box.clear()
+
+    search_box.send_keys(
+        keyword
+    )
+
+    search_box.send_keys(
+        Keys.ENTER
+    )
+
+
+    # ========================================================
+    # 검색 결과 로딩 기다리기
     # ========================================================
 
     try:
 
         WebDriverWait(
             driver,
-            15
+            10
         ).until(
 
             lambda d:
@@ -310,13 +315,11 @@ def search_dictionary(
 
         )
 
-
     except TimeoutException:
 
         meanings = extract_meanings(
             driver
         )
-
 
         if not meanings:
 
@@ -326,16 +329,11 @@ def search_dictionary(
 
 
     # ========================================================
-    # 현재 뜻 목록
+    # 처음 표시된 뜻
     # ========================================================
 
     initial_meanings = extract_meanings(
         driver
-    )
-
-
-    print(
-        f"[Crawler] 최초 결과: {len(initial_meanings)}개"
     )
 
 
@@ -347,13 +345,11 @@ def search_dictionary(
         driver
     )
 
-
     if more_clicked:
 
         initial_count = len(
             initial_meanings
         )
-
 
         try:
 
@@ -373,20 +369,18 @@ def search_dictionary(
 
             )
 
-
         except TimeoutException:
 
             pass
 
 
     # ========================================================
-    # 최종 뜻 추출
+    # 최종 결과
     # ========================================================
 
     meanings = extract_meanings(
         driver
     )
-
 
     if not meanings:
 
@@ -395,15 +389,7 @@ def search_dictionary(
         )
 
 
-    print(
-        f"[Crawler] 최종 결과: {len(meanings)}개"
-    )
-
-
-    # ========================================================
-    # 실제 검색 결과 페이지 주소
-    # ========================================================
-
+    # 실제 검색 후 현재 주소
     result_url = driver.current_url
 
 
@@ -423,11 +409,9 @@ def close_driver(driver):
 
         return
 
-
     try:
 
         driver.quit()
-
 
     except Exception:
 
@@ -435,25 +419,85 @@ def close_driver(driver):
 
 
 # ============================================================
+# Flask에서 현재 검색어 가져오기
+#
+# ★ app.py를 수정하지 않기 위해
+# crawler 자체가 request.args에서 keyword를 가져옴
+# ============================================================
+
+def get_keyword_from_flask():
+
+    try:
+
+        # Flask를 여기에서만 import
+        # crawler 자체 구조를 최대한 독립적으로 유지
+        from flask import request
+
+        keyword = request.args.get(
+            "keyword",
+            ""
+        )
+
+        if keyword is None:
+
+            return ""
+
+        return keyword.strip()
+
+    except RuntimeError:
+
+        # Flask request context 밖에서 실행된 경우
+        return ""
+
+    except Exception:
+
+        return ""
+
+
+# ============================================================
 # Flask / Jinja2 통합용 최종 함수
 #
-# Flask:
+# app.py에서는 기존 그대로:
 #
-# results = get_crawl_results(keyword)
+# results = get_crawl_results()
 #
-# 형태로 호출
+# 호출하면 됨.
+#
+# URL:
+# /crawl-result?keyword=사출
+#
+# 이면 crawler.py가 자동으로 "사출"을 읽음.
 # ============================================================
 
 def get_crawl_results(
-    keyword=""
+    keyword=None
 ):
 
     # ========================================================
-    # 검색어 처리
+    # keyword를 직접 전달하지 않았다면
+    # Flask URL에서 자동으로 가져옴
     # ========================================================
 
-    keyword = keyword.strip()
+    if keyword is None:
 
+        keyword = get_keyword_from_flask()
+
+
+    # ========================================================
+    # 문자열 정리
+    # ========================================================
+
+    keyword = str(
+        keyword
+    ).strip()
+
+
+    # ========================================================
+    # 검색어가 없는 경우
+    #
+    # 처음 /crawl-result 접속했을 때
+    # Selenium을 실행하지 않음.
+    # ========================================================
 
     if not keyword:
 
@@ -466,23 +510,23 @@ def get_crawl_results(
     try:
 
         print(
-            "======================================"
+            "=========================================="
         )
 
         print(
-            f"[Crawler] '{keyword}' 크롤링 시작"
+            f"[Crawler] 검색 시작: {keyword}"
         )
 
 
         # ====================================================
-        # Headless Selenium 실행
+        # Headless Chrome 실행
         # ====================================================
 
         driver = create_driver()
 
 
         # ====================================================
-        # 실제 검색
+        # 네이버 동적 크롤링
         # ====================================================
 
         meanings, result_url = search_dictionary(
@@ -492,16 +536,7 @@ def get_crawl_results(
 
 
         # ====================================================
-        # Jinja2에서 사용할 데이터 생성
-        #
-        # [
-        #     {
-        #         "title": "...",
-        #         "url": "...",
-        #         "summary": "..."
-        #     }
-        # ]
-        #
+        # Jinja2에서 사용할 형식으로 변환
         # ====================================================
 
         results = []
@@ -526,11 +561,11 @@ def get_crawl_results(
 
 
         print(
-            f"[Crawler] 크롤링 완료: {len(results)}개"
+            f"[Crawler] 검색 완료: {len(results)}개"
         )
 
         print(
-            "======================================"
+            "=========================================="
         )
 
 
@@ -540,7 +575,7 @@ def get_crawl_results(
     except Exception as e:
 
         print(
-            "======================================"
+            "=========================================="
         )
 
         print(
@@ -548,7 +583,7 @@ def get_crawl_results(
         )
 
         print(
-            "======================================"
+            "=========================================="
         )
 
 
