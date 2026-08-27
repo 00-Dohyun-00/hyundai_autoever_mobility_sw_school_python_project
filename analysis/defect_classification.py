@@ -5,9 +5,16 @@ Streamlit이 아닌 Flask/Jinja2 페이지에서 보여주기 위해 이식한 �
 
 import base64
 import io
+import os
+import tempfile
 from pathlib import Path
 
 import joblib
+
+# Vercel 등 서버리스 배포 환경은 프로젝트 디렉터리가 읽기 전용이라, matplotlib이
+# 폰트 캐시를 쓸 곳도 /tmp로 미리 지정해줘야 임포트 단계에서 실패하지 않는다.
+os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "matplotlib"))
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -37,16 +44,35 @@ plt.rcParams["axes.unicode_minus"] = False
 LOG_THRESHOLD = 0.50
 RF_THRESHOLD = 0.30
 
+def _resolve_models_dir():
+    """예측 탭에서 재사용할 학습된 모델/기본값 저장 위치를 정한다.
+
+    로컬에서는 프로젝트 루트의 models/ 를 그대로 쓰고, Vercel처럼 프로젝트
+    디렉터리가 읽기 전용인 배포 환경에서는 /tmp 아래로 자동 전환한다.
+    """
+    project_models_dir = Path(__file__).resolve().parent.parent / "models"
+    try:
+        project_models_dir.mkdir(exist_ok=True)
+        return project_models_dir
+    except OSError:
+        fallback_dir = Path(tempfile.gettempdir()) / "hyundai-autoever-models"
+        fallback_dir.mkdir(exist_ok=True)
+        return fallback_dir
+
+
 # 예측 탭에서 재사용할 학습된 모델/기본값 저장 위치.
-# 이 파일 기준 analysis/ 의 부모(=project_root)/models 에 저장한다.
-MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
-MODELS_DIR.mkdir(exist_ok=True)
+MODELS_DIR = _resolve_models_dir()
 
 MODEL_FILENAMES = {
     "Logistic Regression": "logistic_regression.joblib",
     "Random Forest": "random_forest.joblib",
 }
 DEFAULTS_PATH = MODELS_DIR / "feature_defaults.joblib"
+
+# 예측 탭에서 모델이 아직 학습되지 않았을 때(self-heal) 즉석 학습에 쓸 원본 CSV 경로.
+DEFAULT_CSV_PATH = (
+    Path(__file__).resolve().parent.parent / "data" / "hyundai_autoever_injection_defect_classification_v2.csv"
+)
 
 
 def _fig_to_base64(fig):
