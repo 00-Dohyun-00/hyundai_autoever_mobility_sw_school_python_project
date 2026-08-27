@@ -1142,11 +1142,6 @@
         </div>
 
 
-        <!--
-            실제 분석 페이지 주소가 다르면
-            href="/analysis-result" 부분만 변경
-        -->
-
         <a
             class="analysis-link"
             href="/analysis-result"
@@ -1637,6 +1632,7 @@
                 >
                     필요한 단어와 뜻을 저장하고
                     텍스트 파일로 내보낼 수 있습니다.
+                    현재 브라우저 세션이 끝나면 메모는 초기화됩니다.
                 </p>
 
             </div>
@@ -1745,7 +1741,7 @@
 
 
     /* =====================================================
-       LocalStorage
+       sessionStorage
     ====================================================== */
 
     const RECENT_SEARCH_KEY =
@@ -1952,7 +1948,7 @@
         try {
 
             const raw =
-                localStorage.getItem(
+                sessionStorage.getItem(
                     RECENT_SEARCH_KEY
                 );
 
@@ -2030,7 +2026,7 @@
             );
 
 
-        localStorage.setItem(
+        sessionStorage.setItem(
 
             RECENT_SEARCH_KEY,
 
@@ -2064,7 +2060,7 @@
             );
 
 
-        localStorage.setItem(
+        sessionStorage.setItem(
 
             RECENT_SEARCH_KEY,
 
@@ -2242,7 +2238,7 @@
 
             function () {
 
-                localStorage.removeItem(
+                sessionStorage.removeItem(
                     RECENT_SEARCH_KEY
                 );
 
@@ -2326,7 +2322,7 @@
         try {
 
             const raw =
-                localStorage.getItem(
+                sessionStorage.getItem(
                     MEMO_KEY
                 );
 
@@ -2366,7 +2362,7 @@
         memos
     ) {
 
-        localStorage.setItem(
+        sessionStorage.setItem(
 
             MEMO_KEY,
 
@@ -2897,7 +2893,7 @@
                 }
 
 
-                localStorage.removeItem(
+                sessionStorage.removeItem(
                     MEMO_KEY
                 );
 
