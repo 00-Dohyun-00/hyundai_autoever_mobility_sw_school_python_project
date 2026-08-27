@@ -84,5 +84,9 @@ def crawl_result():
     return render_template("crawl_result.html", results=results)
 
 
+@app.route("/deploy-check")
+def deploy_check():
+    return "selenium-fix-20260827"
+
 if __name__ == "__main__":
     app.run(debug=True)
