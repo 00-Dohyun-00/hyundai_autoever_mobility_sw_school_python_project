@@ -6,6 +6,18 @@ Flask + Jinja2 기반 웹 UI로, 사출성형 불량 예측 데이터를 분석�
 - ML 분석/예측 로직은 `analysis/`, 크롤링 로직은 `crawler/`에 있습니다.
 - React/Vue 없이 서버 렌더링 + 최소한의 vanilla JS(fetch, select 전환)만 사용합니다.
 
+## 배포 주소
+
+https://hyundai-autoever-mobility-sw-school.vercel.app/
+
+## 팀 구성
+
+| 이름 | 역할 | 주요 작업 |
+| --- | --- | --- |
+| 연창, 우린 | 데이터셋 선정 및 모델링 | 사출성형 불량 예측 데이터셋 선정, 데이터 전처리, Logistic Regression / Random Forest 모델 설계·학습·성능 평가 (`analysis/classification.py`, `analysis/defect_classification.py`) |
+| 도현 | UI | Flask + Jinja2 기반 전체 화면 설계·구현, 분석 결과 시각화, 모델 예측 화면 UI/UX 개선, 배포 환경 이슈 대응 (`app.py`, `templates/`, `static/`) |
+| 상원 | 크롤링 | 사출 관련 뉴스 크롤링 기능 구현 (`crawler/crawler.py`) |
+
 ## 화면 구성
 
 | 경로 | 화면 | 설명 |
