@@ -122,6 +122,136 @@ def extract_meanings(driver):
 
 
 # ============================================================
+# 실제 검색 결과 단어 추출
+#
+# 중요:
+#
+# 사용자가 입력한 keyword를 그대로 쓰는 것이 아니라
+# 네이버 검색 결과 화면에 실제 표시된 단어를 가져온다.
+#
+# 예:
+#
+# 입력 검색어:
+#     어떤검색어
+#
+# 네이버 실제 결과:
+#     실제단어
+#
+# 화면에는:
+#     실제단어
+#     뜻...
+#
+# 형태로 표시된다.
+#
+# 단어 추출에 실패한다고 해서
+# 전체 크롤링 결과를 폐기하지 않는다.
+# ============================================================
+
+def extract_result_word(driver):
+
+    try:
+
+        # 현재 정상적으로 사용하고 있는
+        # 뜻 요소를 먼저 가져온다.
+        mean_elements = driver.find_elements(
+            By.CSS_SELECTOR,
+            MEAN_SELECTOR
+        )
+
+        if not mean_elements:
+            return ""
+
+        # 첫 번째 뜻을 기준으로 한다.
+        first_mean = mean_elements[0]
+
+
+        # ====================================================
+        # 첫 번째 뜻을 포함하는 검색 결과 영역 중에서
+        # <a> 내부의 <strong> 요소를 가지고 있는
+        # 가장 가까운 부모 영역을 찾는다.
+        #
+        # 절대 XPath:
+        #
+        # //*[@id="contents"]/div[3]/div[1]/...
+        #
+        # 같은 구조를 사용하지 않기 때문에
+        # 페이지 div 순서가 조금 바뀌어도
+        # 기존 방식보다 영향을 덜 받는다.
+        # ====================================================
+
+        result_container = first_mean.find_element(
+            By.XPATH,
+            "./ancestor::*[.//a//strong][1]"
+        )
+
+
+        # ====================================================
+        # 해당 검색 결과 영역 안에서
+        # 실제 표시된 단어를 찾는다.
+        # ====================================================
+
+        word_elements = result_container.find_elements(
+            By.XPATH,
+            ".//a//strong"
+        )
+
+        if not word_elements:
+            return ""
+
+
+        # ====================================================
+        # strong 후보들 중 실제 텍스트가 있는
+        # 첫 번째 요소를 사용한다.
+        # ====================================================
+
+        for word_element in word_elements:
+
+            try:
+
+                result_word = word_element.get_attribute(
+                    "innerText"
+                )
+
+                if result_word is None:
+                    continue
+
+                result_word = result_word.strip()
+
+                if result_word:
+
+                    print(
+                        f"[Crawler] 실제 결과 단어: "
+                        f"{result_word}"
+                    )
+
+                    return result_word
+
+            except StaleElementReferenceException:
+
+                continue
+
+            except Exception:
+
+                continue
+
+
+        return ""
+
+    except Exception as e:
+
+        # 중요:
+        #
+        # 결과 단어를 못 찾았다고 해서
+        # 정상적으로 크롤링한 뜻까지 없애지 않는다.
+
+        print(
+            f"[Crawler] 실제 결과 단어 추출 실패: {e}"
+        )
+
+        return ""
+
+
+# ============================================================
 # "단어 더보기" 버튼 처리
 # ============================================================
 
@@ -286,6 +416,12 @@ def search_dictionary(
 
     # ========================================================
     # 검색 결과 로딩 기다리기
+    #
+    # 기존 정상 작동 방식 그대로 유지
+    #
+    # p.mean이 나타나거나
+    # 더보기 버튼이 나타나면
+    # 검색 결과가 로딩됐다고 판단한다.
     # ========================================================
 
     try:
@@ -375,7 +511,7 @@ def search_dictionary(
 
 
     # ========================================================
-    # 최종 결과
+    # 최종 뜻 결과
     # ========================================================
 
     meanings = extract_meanings(
@@ -389,11 +525,69 @@ def search_dictionary(
         )
 
 
+    # ========================================================
+    # ★ 실제 네이버 검색 결과 단어 추출
+    #
+    # 여기서 실패하더라도
+    # meanings를 폐기하지 않는다.
+    # ========================================================
+
+    result_word = extract_result_word(
+        driver
+    )
+
+
+    # ========================================================
+    # 실제 결과 단어 추출에 실패한 경우
+    #
+    # 기존 입력 검색어를 대신 사용한다.
+    #
+    # 즉:
+    #
+    # 단어 추출 실패
+    #     ↓
+    # 크롤링 전체 실패 X
+    #
+    # 정상적으로 뜻은 화면에 표시됨
+    # ========================================================
+
+    if not result_word:
+
+        result_word = keyword
+
+        print(
+            "[Crawler] 실제 결과 단어를 찾지 못해 "
+            "입력 검색어를 사용합니다."
+        )
+
+
+    print(
+        f"[Crawler] 입력 검색어: {keyword}"
+    )
+
+    print(
+        f"[Crawler] 표시할 결과 단어: {result_word}"
+    )
+
+
     # 실제 검색 후 현재 주소
     result_url = driver.current_url
 
 
+    # ========================================================
+    # 반환
+    #
+    # 이전:
+    #
+    # meanings, result_url
+    #
+    # 변경:
+    #
+    # result_word, meanings, result_url
+    # ========================================================
+
     return (
+        result_word,
         meanings,
         result_url
     )
@@ -421,7 +615,7 @@ def close_driver(driver):
 # ============================================================
 # Flask에서 현재 검색어 가져오기
 #
-# ★ app.py를 수정하지 않기 위해
+# app.py를 수정하지 않기 위해
 # crawler 자체가 request.args에서 keyword를 가져옴
 # ============================================================
 
@@ -464,9 +658,11 @@ def get_keyword_from_flask():
 # 호출하면 됨.
 #
 # URL:
+#
 # /crawl-result?keyword=사출
 #
-# 이면 crawler.py가 자동으로 "사출"을 읽음.
+# 형태로 들어오면 crawler.py가
+# request.args에서 keyword를 자동으로 읽는다.
 # ============================================================
 
 def get_crawl_results(
@@ -527,9 +723,15 @@ def get_crawl_results(
 
         # ====================================================
         # 네이버 동적 크롤링
+        #
+        # ★ 실제 결과 단어까지 함께 받아온다.
         # ====================================================
 
-        meanings, result_url = search_dictionary(
+        (
+            result_word,
+            meanings,
+            result_url
+        ) = search_dictionary(
             keyword,
             driver
         )
@@ -537,24 +739,31 @@ def get_crawl_results(
 
         # ====================================================
         # Jinja2에서 사용할 형식으로 변환
+        #
+        # 중요:
+        #
+        # 기존:
+        #
+        # "title": f"{keyword} 뜻 {index}"
+        #
+        # 변경:
+        #
+        # "title": result_word
+        #
+        # 따라서 사용자가 입력한 검색어가 아니라
+        # 네이버가 실제 표시한 결과 단어가
+        # 화면 제목으로 출력된다.
         # ====================================================
 
         results = []
 
 
-        for index, meaning in enumerate(
-            meanings,
-            start=1
-        ):
+        for meaning in meanings:
 
             results.append(
                 {
-                    "title": (
-                        f"{keyword} 뜻 {index}"
-                    ),
-
+                    "title": result_word,
                     "url": result_url,
-
                     "summary": meaning,
                 }
             )
@@ -562,6 +771,10 @@ def get_crawl_results(
 
         print(
             f"[Crawler] 검색 완료: {len(results)}개"
+        )
+
+        print(
+            f"[Crawler] 결과 단어: {result_word}"
         )
 
         print(
