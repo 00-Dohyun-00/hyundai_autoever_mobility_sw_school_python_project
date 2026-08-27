@@ -1,6 +1,9 @@
 import os
 import unicodedata
+import os
 
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 
 from selenium.webdriver.common.by import By
@@ -100,94 +103,34 @@ def make_error_result(
 # ============================================================
 # Chrome Driver 생성
 # ============================================================
-
 def create_driver():
 
     try:
 
         options = webdriver.ChromeOptions()
 
-        # ====================================================
-        # Vercel / Docker 환경
-        # ====================================================
-
         chromium_path = "/usr/bin/chromium"
         chromedriver_path = "/usr/bin/chromedriver"
 
-        # Docker 안에 Chromium이 설치된 경우
         if os.path.exists(chromium_path):
-
             options.binary_location = chromium_path
 
-
-        # ====================================================
-        # Headless 설정
-        # ====================================================
-
-        options.add_argument(
-            "--headless=new"
-        )
-
-
-        # ====================================================
-        # Linux / Docker 환경 안정화 옵션
-        # ====================================================
-
-        options.add_argument(
-            "--no-sandbox"
-        )
-
-        options.add_argument(
-            "--disable-dev-shm-usage"
-        )
-
-
-        # ====================================================
-        # 기존 Chrome 설정
-        # ====================================================
-
-        options.add_argument(
-            "--disable-notifications"
-        )
-
-        options.add_argument(
-            "--disable-popup-blocking"
-        )
-
-        options.add_argument(
-            "--disable-gpu"
-        )
-
-        options.add_argument(
-            "--window-size=1920,1080"
-        )
-
-
-        # ====================================================
-        # Docker / Vercel
-        #
-        # Dockerfile.vercel에서 설치한
-        # ChromeDriver를 직접 사용
-        # ====================================================
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
 
         if os.path.exists(chromedriver_path):
 
-            service = Service(
-                chromedriver_path
-            )
+            service = Service(chromedriver_path)
 
             driver = webdriver.Chrome(
                 service=service,
                 options=options,
             )
-
-
-        # ====================================================
-        # Windows / PyCharm 로컬 실행
-        #
-        # Selenium Manager가 자동으로
-        # ChromeDriver를 관리
-        # ====================================================
 
         else:
 
@@ -195,30 +138,22 @@ def create_driver():
                 options=options
             )
 
-
         return driver
-
 
     except WebDriverException as e:
 
         raise CrawlerError(
-
             code="DRIVER_START_FAILED",
-
             title="Chrome 실행 실패",
-
             message=(
                 "크롤링에 사용할 Chrome 브라우저를 "
                 "실행하지 못했습니다."
             ),
-
             hint=(
                 "Chrome 설치 상태와 Selenium 실행 환경을 "
                 "확인해주세요."
             ),
-
             technical_detail=str(e),
-
         ) from e
 
 
