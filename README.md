@@ -977,3 +977,17 @@ TXT 파일 저장
 ```
 
 Selenium을 이용한 네이버 국어사전 검색을 중심으로 결과 검증, 로딩 상태 표시, 오류 안내, 최근 검색어, 메모 기능을 추가하여 검색 결과를 확인하고 필요한 내용을 정리할 수 있도록 구성했습니다.
+
+
+```
+
+## 실행 방법
+
+```
+python -m venv .venv          # 최초 1회
+.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+브라우저에서 http://localhost:5000 접속 (홈 화면이 자동으로 기본 CSV를 분석합니다).
