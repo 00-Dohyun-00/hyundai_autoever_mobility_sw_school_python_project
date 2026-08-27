@@ -1,6 +1,419 @@
 # 네이버 국어사전 크롤링
+
+
 <details>
-<summary>펼쳐보기</summary>
+<summary>요약보기</summary>
+
+````
+# 네이버 국어사전 크롤링 기능
+
+Flask + Jinja2 웹 화면에서 검색어를 입력하면 Selenium으로 네이버 국어사전을 검색하고, 검색 결과의 단어와 뜻을 가져와 표시하는 기능입니다.
+
+검색뿐 아니라 로딩 상태, 검색어 검증, 오류 처리, 최근 검색어, 메모 및 TXT 저장 기능을 함께 제공합니다.
+
+---
+
+# 주요 기능
+
+- Selenium 기반 네이버 국어사전 검색
+- 검색 결과 뜻 자동 추출
+- 입력 검색어와 실제 결과 단어 비교
+- 뜻별 결과 카드 표시
+- 네이버 국어사전 원문 링크 제공
+- 검색 중 로딩 화면
+- 오류 유형별 안내 및 유지보수 로그
+- 최근 검색어 최대 5개 관리
+- 검색 결과 메모 및 중복 저장 방지
+- 전체 뜻 한 번에 메모
+- 메모 개별/전체 삭제
+- 메모 TXT 파일 저장
+
+---
+
+# 사용 기술
+
+## Backend
+
+- Python
+- Flask
+- Jinja2
+
+## Crawling
+
+- Selenium
+- Chrome
+- ChromeDriver
+
+## Frontend
+
+- HTML
+- CSS
+- JavaScript
+- `sessionStorage`
+
+React나 Vue 같은 별도 프론트엔드 프레임워크 없이 Jinja2와 JavaScript로 화면을 구성합니다.
+
+---
+
+# 주요 파일
+
+```text
+crawler/
+├─ __init__.py
+└─ crawler.py
+
+templates/
+└─ crawl_result.html
+````
+
+| 파일                            | 역할                                        |
+| ----------------------------- | ----------------------------------------- |
+| `crawler/crawler.py`          | Selenium 실행, 사전 검색, 뜻 추출, 결과 단어 확인, 오류 처리 |
+| `templates/crawl_result.html` | 검색창, 결과 카드, 로딩, 오류, 최근 검색어, 메모 UI         |
+
+---
+
+# 검색 흐름
+
+```text
+검색어 입력
+    ↓
+검색 버튼 클릭
+    ↓
+로딩 화면 표시
+    ↓
+Chrome Driver 실행
+    ↓
+네이버 국어사전 접속
+    ↓
+검색어 입력 및 ENTER
+    ↓
+검색 결과 로딩 대기
+    ↓
+뜻 추출
+    ↓
+실제 결과 단어 확인
+    ↓
+검색어와 결과 비교
+    ↓
+Flask 결과 반환
+    ↓
+Jinja2 화면 출력
+```
+
+검색 화면은 다음 경로를 사용합니다.
+
+```text
+/crawl-result?keyword=검색어
+```
+
+---
+
+# Selenium 검색 구현
+
+Chrome WebDriver를 실행하며 기본적으로 Headless 모드를 사용합니다.
+
+```python
+driver = webdriver.Chrome(options=options)
+options.add_argument("--headless=new")
+```
+
+네이버 국어사전에 접속한 뒤 검색창을 찾습니다.
+
+```python
+NAVER_DICT_URL = "https://ko.dict.naver.com/#/main"
+SEARCH_XPATH = '//*[@id="ac_input"]'
+```
+
+검색어를 입력하고 `ENTER`로 검색합니다.
+
+```python
+search_box.clear()
+search_box.send_keys(keyword)
+search_box.send_keys(Keys.ENTER)
+```
+
+검색 결과는 `WebDriverWait`을 이용해 필요한 요소가 나타날 때까지 기다립니다.
+
+---
+
+# 뜻 추출
+
+뜻 영역은 다음 CSS Selector로 가져옵니다.
+
+```python
+MEAN_SELECTOR = 'p.mean[lang="ko"]'
+```
+
+```python
+mean_elements = driver.find_elements(
+    By.CSS_SELECTOR,
+    MEAN_SELECTOR
+)
+```
+
+추출 과정에서 다음 항목은 제외합니다.
+
+* 빈 텍스트
+* 읽을 수 없는 요소
+* 중복된 뜻
+
+각 뜻은 하나의 결과 카드로 나누어 화면에 표시합니다.
+
+---
+
+# 실제 결과 단어 확인
+
+사용자가 입력한 단어와 네이버가 실제로 보여주는 결과 단어가 다를 수 있으므로 결과 영역에서 단어를 별도로 추출합니다.
+
+두 단어가 다르면 결과를 삭제하지 않고 경고를 표시합니다.
+
+```text
+입력 검색어: 사추
+실제 결과: 사출
+
+아래 결과는 "사출"의 뜻입니다.
+```
+
+실제 결과 단어를 읽지 못한 경우에도 뜻 데이터가 정상적으로 존재하면 입력 검색어를 제목으로 사용하고 결과는 유지합니다.
+
+---
+
+# 추가 결과 처리
+
+추가 뜻이 있는 경우 `단어 더보기` 버튼을 확인합니다.
+
+```python
+MORE_BUTTON_XPATH = '//*[@id="searchPage_word_more"]'
+```
+
+일반 클릭이 실패하면 JavaScript 클릭을 시도합니다.
+
+```python
+driver.execute_script(
+    "arguments[0].click();",
+    more_button
+)
+```
+
+추가 결과가 로딩되면 뜻 목록을 다시 읽어 기존 결과에 포함합니다.
+
+---
+
+# 로딩 화면
+
+Selenium 검색에는 시간이 걸릴 수 있으므로 검색 시작 시 로딩 상태를 표시합니다.
+
+* Spinner 표시
+* 검색 버튼 비활성화
+* 버튼 문구를 `검색 중...`으로 변경
+
+이를 통해 사용자가 검색 진행 여부를 확인할 수 있도록 합니다.
+
+---
+
+# 최근 검색어
+
+최근 검색어는 JavaScript의 `sessionStorage`에 최대 5개까지 저장합니다.
+
+지원 기능:
+
+* 동일 검색어 중복 방지
+* 재검색한 단어를 맨 앞으로 이동
+* 클릭 시 바로 재검색
+* 개별 삭제
+* 전체 삭제
+
+`sessionStorage`를 사용하므로 현재 브라우저 세션 동안만 유지됩니다.
+
+---
+
+# 메모 기능
+
+각 검색 결과 카드에서 필요한 뜻을 메모에 추가할 수 있습니다.
+
+저장 정보:
+
+* 결과 단어
+* 뜻
+* 출처
+* 저장 시간
+
+동일한 단어와 뜻이 이미 존재하면 중복 저장하지 않습니다.
+
+또한 현재 검색된 모든 뜻을 한 번에 추가할 수 있으며 이미 저장된 항목은 제외합니다.
+
+메모 역시 `sessionStorage`를 사용하여 현재 브라우저 세션 동안 유지합니다.
+
+---
+
+# 메모 TXT 저장
+
+메모 내용을 JavaScript에서 TXT 파일로 저장할 수 있습니다.
+
+```text
+dictionary_memo_2026-08-27.txt
+```
+
+예시:
+
+```text
+네이버 국어사전 검색 메모
+========================================
+
+1. 사출
+뜻: 첫 번째 뜻 내용
+출처: 네이버 국어사전
+저장일시: 2026. 8. 27.
+----------------------------------------
+```
+
+별도의 Flask 저장 Route를 사용하지 않고 브라우저에 저장된 메모 데이터를 이용해 파일을 생성합니다.
+
+---
+
+# 오류 처리
+
+크롤링 과정의 실패 원인을 구분하여 사용자에게 적절한 메시지를 표시합니다.
+
+| 오류 코드                          | 설명                     |
+| ------------------------------ | ---------------------- |
+| `EMPTY_KEYWORD`                | 검색어 없음                 |
+| `DRIVER_START_FAILED`          | Chrome 실행 실패           |
+| `SITE_CONNECTION_FAILED`       | 사이트 접속 실패              |
+| `SEARCH_BOX_NOT_FOUND`         | 검색창 탐색 실패              |
+| `SEARCH_INPUT_FAILED`          | 검색 실행 실패               |
+| `ACCESS_BLOCKED`               | 자동화 접근 제한              |
+| `NO_RESULTS`                   | 검색 결과 없음               |
+| `RESULT_LOAD_TIMEOUT`          | 결과 로딩 시간 초과            |
+| `DOM_READ_FAILED`              | HTML 요소 읽기 실패          |
+| `MEANING_NOT_FOUND`            | 뜻을 찾지 못함               |
+| `BROWSER_COMMUNICATION_FAILED` | Selenium과 Chrome 통신 오류 |
+| `UNEXPECTED_ERROR`             | 기타 예외                  |
+
+사용자 화면에는 오류 코드, 설명, 확인 방법을 표시하고 상세 예외는 Flask 서버 로그에 기록합니다.
+
+```text
+[Crawler 유지보수 로그] TimeoutException: ...
+```
+
+---
+
+# 부분 실패 처리
+
+부가 기능에서 문제가 발생했더라도 이미 정상적인 뜻을 확보했다면 전체 검색을 실패 처리하지 않습니다.
+
+예:
+
+* 실제 결과 단어 확인 실패
+* `단어 더보기` 클릭 실패
+* 추가 결과 로딩 시간 초과
+
+```text
+검색 결과 확보
+    +
+일부 기능 실패
+    ↓
+검색 결과 유지
+    +
+경고 표시
+```
+
+---
+
+# 결과 데이터 구조
+
+정상 검색 결과는 Dictionary 형태로 Jinja2에 전달합니다.
+
+```python
+{
+    "status": "ok",
+    "input_keyword": "사출",
+    "title": "사출",
+    "url": "검색 결과 URL",
+    "meanings": [
+        "첫 번째 뜻",
+        "두 번째 뜻"
+    ],
+    "count": 2,
+    "word_detected": True,
+    "mismatch": False,
+    "warnings": []
+}
+```
+
+오류도 동일한 구조로 처리할 수 있도록 정형화합니다.
+
+```python
+{
+    "status": "error",
+    "error": {
+        "code": "RESULT_LOAD_TIMEOUT",
+        "title": "검색 결과 로딩 지연",
+        "message": "검색 결과를 제한 시간 안에 확인하지 못했습니다.",
+        "hint": "잠시 후 다시 시도해주세요."
+    }
+}
+```
+
+---
+
+# 구현 시 주의사항
+
+## 네이버 페이지 구조
+
+크롤링은 현재 네이버 국어사전 HTML 구조에 의존합니다.
+
+```python
+SEARCH_XPATH = '//*[@id="ac_input"]'
+MORE_BUTTON_XPATH = '//*[@id="searchPage_word_more"]'
+MEAN_SELECTOR = 'p.mean[lang="ko"]'
+```
+
+네이버의 HTML 구조가 변경되면 Selector 수정이 필요할 수 있습니다.
+
+## 네트워크 및 자동화 제한
+
+외부 사이트를 사용하는 기능이므로 네트워크 지연이나 자동화 접근 제한에 영향을 받을 수 있습니다.
+
+검색 요청을 지나치게 많이 보내는 경우 `ACCESS_BLOCKED`로 처리할 수 있습니다.
+
+## 임시 데이터 저장
+
+최근 검색어와 메모는 `sessionStorage`를 사용하므로 브라우저 세션 종료 시 삭제됩니다.
+
+장기간 보관이 필요한 메모는 TXT 파일로 저장합니다.
+
+---
+
+# 요약
+
+이 기능은 다음 구조로 구현됩니다.
+
+```text
+Flask + Jinja2
+      ↓
+Selenium
+      ↓
+네이버 국어사전 검색
+      ↓
+단어·뜻 추출 및 검증
+      ↓
+결과 카드 출력
+      ↓
+최근 검색어 / 메모
+      ↓
+TXT 저장
+```
+
+Selenium 기반 사전 검색을 중심으로 결과 검증, 오류 처리, 로딩 상태, 최근 검색어, 메모 기능을 결합하여 하나의 검색 화면에서 사용할 수 있도록 구성했습니다.
+
+```
+
+</details>
+
+<details>
+<summary>자세히 보기</summary>
 
 
 Flask + Jinja2 기반 웹 화면에서 사용자가 검색어를 입력하면 Selenium을 이용해 네이버 국어사전을 검색하고, 검색 결과의 단어와 뜻을 가져와 화면에 표시하는 기능입니다.
@@ -982,6 +1395,7 @@ TXT 파일 저장
 Selenium을 이용한 네이버 국어사전 검색을 중심으로 결과 검증, 로딩 상태 표시, 오류 안내, 최근 검색어, 메모 기능을 추가하여 검색 결과를 확인하고 필요한 내용을 정리할 수 있도록 구성했습니다.
 
 </details>
+
 
 
 ## 실행 방법
