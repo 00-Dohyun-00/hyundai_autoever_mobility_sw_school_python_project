@@ -1,3 +1,6 @@
+import os
+import unicodedata
+
 from selenium import webdriver
 
 from selenium.webdriver.common.by import By
@@ -6,14 +9,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from selenium.webdriver.chrome.service import Service
+
 from selenium.common.exceptions import (
     TimeoutException,
     WebDriverException,
     ElementClickInterceptedException,
     StaleElementReferenceException,
 )
-
-import unicodedata
 
 
 # ============================================================
@@ -104,18 +107,44 @@ def create_driver():
 
         options = webdriver.ChromeOptions()
 
+        # ====================================================
+        # Vercel / Docker 환경
+        # ====================================================
 
-        # ----------------------------------------------------
-        # Headless Chrome
-        #
-        # 실제 Chrome 창을 확인하고 싶은 경우
-        # 아래 줄을 주석 처리하면 됩니다.
-        # ----------------------------------------------------
+        chromium_path = "/usr/bin/chromium"
+        chromedriver_path = "/usr/bin/chromedriver"
+
+        # Docker 안에 Chromium이 설치된 경우
+        if os.path.exists(chromium_path):
+
+            options.binary_location = chromium_path
+
+
+        # ====================================================
+        # Headless 설정
+        # ====================================================
 
         options.add_argument(
             "--headless=new"
         )
 
+
+        # ====================================================
+        # Linux / Docker 환경 안정화 옵션
+        # ====================================================
+
+        options.add_argument(
+            "--no-sandbox"
+        )
+
+        options.add_argument(
+            "--disable-dev-shm-usage"
+        )
+
+
+        # ====================================================
+        # 기존 Chrome 설정
+        # ====================================================
 
         options.add_argument(
             "--disable-notifications"
@@ -134,9 +163,37 @@ def create_driver():
         )
 
 
-        driver = webdriver.Chrome(
-            options=options
-        )
+        # ====================================================
+        # Docker / Vercel
+        #
+        # Dockerfile.vercel에서 설치한
+        # ChromeDriver를 직접 사용
+        # ====================================================
+
+        if os.path.exists(chromedriver_path):
+
+            service = Service(
+                chromedriver_path
+            )
+
+            driver = webdriver.Chrome(
+                service=service,
+                options=options,
+            )
+
+
+        # ====================================================
+        # Windows / PyCharm 로컬 실행
+        #
+        # Selenium Manager가 자동으로
+        # ChromeDriver를 관리
+        # ====================================================
+
+        else:
+
+            driver = webdriver.Chrome(
+                options=options
+            )
 
 
         return driver
