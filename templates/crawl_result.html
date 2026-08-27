@@ -16,7 +16,7 @@
 .crawl-page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 34px 22px 70px;
+    padding: 32px 22px 70px;
 }
 
 .crawl-panel {
@@ -35,7 +35,7 @@
 
 
 /* =========================================================
-   페이지 제목
+   상단
 ========================================================= */
 
 .crawl-page-header {
@@ -66,11 +66,6 @@
     line-height: 1.6;
 }
 
-
-/* =========================================================
-   분석 결과 이동 버튼
-========================================================= */
-
 .analysis-link {
     flex-shrink: 0;
 
@@ -87,8 +82,6 @@
 
     font-size: 12px;
     font-weight: 700;
-
-    transition: 0.15s;
 }
 
 .analysis-link:hover {
@@ -99,7 +92,7 @@
 
 
 /* =========================================================
-   패널 제목
+   공통 제목
 ========================================================= */
 
 .panel-title {
@@ -181,9 +174,7 @@
 
     outline: none;
 
-    background: #ffffff;
-
-    color: #111827;
+    background: white;
 
     font-size: 14px;
 }
@@ -219,9 +210,9 @@
 }
 
 .crawl-search-button:disabled {
-    cursor: wait;
-
     opacity: 0.65;
+
+    cursor: wait;
 }
 
 
@@ -235,8 +226,8 @@
 
 .recent-search-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 
     margin-bottom: 8px;
 }
@@ -314,8 +305,6 @@
     color: #9ca3af;
 
     cursor: pointer;
-
-    font-size: 11px;
 }
 
 .recent-search-remove:hover {
@@ -356,7 +345,7 @@
 
 
 /* =========================================================
-   검색어 != 실제 결과 단어 경고
+   검색어 불일치 경고
 ========================================================= */
 
 .keyword-mismatch-box {
@@ -378,8 +367,8 @@
 
 .keyword-mismatch-icon {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
     flex-shrink: 0;
 
@@ -397,7 +386,7 @@
 }
 
 .keyword-mismatch-title {
-    margin: 0 0 3px;
+    margin: 0 0 4px;
 
     color: #b91c1c;
 
@@ -406,12 +395,11 @@
 }
 
 .keyword-mismatch-text {
-    margin: 0 0 3px;
+    margin: 0 0 4px;
 
     color: #991b1b;
 
     font-size: 11px;
-    line-height: 1.5;
 }
 
 .keyword-mismatch-description {
@@ -425,23 +413,18 @@
 
 
 /* =========================================================
-   검색 결과 출처
+   결과 출처
 ========================================================= */
 
 .result-source-row {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-
-    gap: 12px;
+    align-items: center;
 
     margin-bottom: 12px;
 }
 
 .result-source-badge {
-    display: inline-flex;
-    align-items: center;
-
     padding: 5px 9px;
 
     border-radius: 999px;
@@ -458,7 +441,6 @@
     color: #6b7280;
 
     font-size: 10px;
-    font-weight: 600;
 
     text-decoration: none;
 }
@@ -471,7 +453,7 @@
 
 
 /* =========================================================
-   뜻 결과 카드
+   뜻별 카드
 ========================================================= */
 
 .meaning-result-list {
@@ -492,10 +474,7 @@
         0 2px 5px
         rgba(15, 23, 42, 0.04);
 
-    transition:
-        border-color 0.15s ease,
-        box-shadow 0.15s ease,
-        transform 0.15s ease;
+    transition: 0.15s;
 }
 
 .meaning-result-card:hover {
@@ -538,10 +517,8 @@
 
 .meaning-result-footer {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-
-    gap: 12px;
+    align-items: center;
 
     margin-top: 12px;
     padding-top: 10px;
@@ -561,7 +538,7 @@
     border: 1px solid #d8dee8;
     border-radius: 7px;
 
-    background: #ffffff;
+    background: white;
 
     color: #4b5563;
 
@@ -581,7 +558,7 @@
 
 
 /* =========================================================
-   모든 뜻 메모 추가
+   전체 메모 추가
 ========================================================= */
 
 .result-action-bar {
@@ -642,7 +619,6 @@
     color: #7c5b18;
 
     font-size: 11px;
-    line-height: 1.5;
 }
 
 .warning-code {
@@ -668,7 +644,6 @@
 
 .memo-header-buttons {
     display: flex;
-    flex-wrap: wrap;
 
     gap: 7px;
 }
@@ -679,7 +654,7 @@
     border: 1px solid #d7dee8;
     border-radius: 7px;
 
-    background: #ffffff;
+    background: white;
 
     color: #374151;
 
@@ -721,8 +696,6 @@
     justify-content: space-between;
     align-items: flex-start;
 
-    gap: 10px;
-
     margin-bottom: 7px;
 }
 
@@ -742,8 +715,6 @@
 }
 
 .memo-delete {
-    padding: 2px 5px;
-
     border: 0;
 
     background: transparent;
@@ -751,8 +722,6 @@
     color: #9ca3af;
 
     cursor: pointer;
-
-    font-size: 14px;
 }
 
 .memo-delete:hover {
@@ -791,7 +760,7 @@
 
 
 /* =========================================================
-   검색 전
+   검색 전 화면
 ========================================================= */
 
 .empty-search-state {
@@ -842,7 +811,6 @@
     color: #7f1d1d;
 
     font-size: 12px;
-    line-height: 1.6;
 }
 
 
@@ -862,7 +830,7 @@
     border: 0;
     border-radius: 14px;
 
-    background: #ffffff;
+    background: white;
 
     box-shadow:
         0 24px 65px
@@ -903,7 +871,6 @@
     color: #991b1b;
 
     font-size: 20px;
-    font-weight: 900;
 }
 
 .error-dialog-message {
@@ -912,11 +879,10 @@
     color: #374151;
 
     font-size: 13px;
-    line-height: 1.6;
 }
 
 .error-hint {
-    padding: 12px 13px;
+    padding: 12px;
 
     border-radius: 8px;
 
@@ -946,8 +912,6 @@
     color: white;
 
     cursor: pointer;
-
-    font-weight: 700;
 }
 
 
@@ -963,8 +927,8 @@
     z-index: 99999;
 
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
     background:
         rgba(248, 250, 252, 0.82);
@@ -977,15 +941,10 @@
 }
 
 .loading-box {
-    width:
-        min(
-            320px,
-            calc(100vw - 42px)
-        );
+    width: 300px;
 
     padding: 28px;
 
-    border: 1px solid #e0e5ec;
     border-radius: 14px;
 
     background: white;
@@ -1019,17 +978,12 @@
     display: block;
 
     margin-bottom: 6px;
-
-    color: #111827;
-
-    font-size: 15px;
 }
 
 .loading-box span {
     color: #6b7280;
 
     font-size: 11px;
-    line-height: 1.5;
 }
 
 @keyframes crawl-spin {
@@ -1042,7 +996,7 @@
 
 
 /* =========================================================
-   토스트
+   알림
 ========================================================= */
 
 .crawl-toast {
@@ -1062,25 +1016,16 @@
     color: white;
 
     font-size: 11px;
-    font-weight: 700;
-
-    box-shadow:
-        0 10px 30px
-        rgba(0, 0, 0, 0.18);
 
     opacity: 0;
 
     pointer-events: none;
-
-    transform: translateY(6px);
 
     transition: 0.2s;
 }
 
 .crawl-toast.show {
     opacity: 1;
-
-    transform: translateY(0);
 }
 
 
@@ -1123,7 +1068,7 @@
 
 
     <!-- =====================================================
-         상단
+         페이지 상단
     ====================================================== -->
 
     <div class="crawl-page-header">
@@ -1135,13 +1080,19 @@
             </h1>
 
             <p class="crawl-page-description">
-                네이버 국어사전에서 단어를 검색하고,
-                필요한 뜻을 메모에 저장할 수 있습니다.
+                네이버 국어사전에서 단어를 검색하고
+                필요한 뜻을 메모할 수 있습니다.
             </p>
 
         </div>
 
 
+        <a
+            class="analysis-link"
+            href="/"
+        >
+            ← 분석 결과로 이동
+        </a>
 
     </div>
 
@@ -1156,6 +1107,7 @@
         <h2 class="panel-title">
             🔎 네이버 국어사전 검색
         </h2>
+
 
         <p class="panel-description">
             검색어를 입력하면 네이버 국어사전의 뜻을 가져옵니다.
@@ -1213,6 +1165,7 @@
                     최근 검색어
                 </span>
 
+
                 <button
                     id="recent-clear-button"
                     class="recent-clear-button"
@@ -1259,9 +1212,7 @@
 
 
 
-            <!-- =================================================
-                 정상
-            ================================================== -->
+            <!-- 정상 결과 -->
 
             {% if result.status == "ok" %}
 
@@ -1275,6 +1226,7 @@
                             "{{ result.input_keyword }}" 검색 결과
                         </h2>
 
+
                         <p class="result-count">
                             총 {{ result.meanings|length }}개의 결과를 찾았습니다.
                         </p>
@@ -1283,14 +1235,11 @@
 
 
 
-                    <!-- =========================================
-                         입력어 != 결과 단어
-                    ========================================== -->
+                    <!-- 검색어와 실제 결과 단어가 다를 경우 -->
 
                     {% if result.mismatch %}
 
                         <div class="keyword-mismatch-box">
-
 
                             <div class="keyword-mismatch-icon">
                                 !
@@ -1312,7 +1261,7 @@
                                         {{ result.input_keyword }}
                                     </strong>
 
-                                    &nbsp;→&nbsp;
+                                    →
 
                                     네이버 국어사전 결과:
 
@@ -1324,15 +1273,11 @@
 
 
                                 <p class="keyword-mismatch-description">
-
-                                    아래 내용은 입력한 검색어가 아니라
-                                    네이버 국어사전에 실제 표시된
-                                    "{{ result.title }}"의 결과입니다.
-
+                                    아래 결과는 네이버 국어사전에 실제로
+                                    표시된 "{{ result.title }}"의 뜻입니다.
                                 </p>
 
                             </div>
-
 
                         </div>
 
@@ -1340,9 +1285,7 @@
 
 
 
-                    <!-- =========================================
-                         출처
-                    ========================================== -->
+                    <!-- 출처 -->
 
                     <div class="result-source-row">
 
@@ -1364,9 +1307,7 @@
 
 
 
-                    <!-- =========================================
-                         뜻별 카드
-                    ========================================== -->
+                    <!-- 뜻별 결과 카드 -->
 
                     <div class="meaning-result-list">
 
@@ -1473,9 +1414,7 @@
 
 
 
-            <!-- =================================================
-                 오류
-            ================================================== -->
+            <!-- 오류 결과 -->
 
             {% elif result.status == "error" %}
 
@@ -1490,6 +1429,7 @@
                         <p class="inline-error-title">
                             {{ error.title }}
                         </p>
+
 
                         <p class="inline-error-message">
                             {{ error.message }}
@@ -1557,7 +1497,6 @@
             {% endif %}
 
 
-
         {% else %}
 
 
@@ -1577,7 +1516,6 @@
 
 
         {% endif %}
-
 
 
     {% else %}
@@ -1624,9 +1562,8 @@
                     class="panel-description"
                     style="margin-bottom: 0;"
                 >
-                    필요한 단어와 뜻을 저장하고
-                    텍스트 파일로 내보낼 수 있습니다.
-                    현재 브라우저 세션이 끝나면 메모는 초기화됩니다.
+                    필요한 단어와 뜻을 메모한 뒤
+                    TXT 파일로 저장할 수 있습니다.
                 </p>
 
             </div>
@@ -1690,7 +1627,6 @@
 
     <div class="loading-box">
 
-
         <div class="loading-spinner">
         </div>
 
@@ -1701,15 +1637,10 @@
 
 
         <span>
-
             검색 결과와 뜻을 가져오는 중입니다.
-
             <br>
-
             잠시 기다려주세요.
-
         </span>
-
 
     </div>
 
@@ -1717,9 +1648,7 @@
 
 
 
-<!-- =========================================================
-     토스트
-========================================================= -->
+<!-- 알림 -->
 
 <div
     id="crawl-toast"
@@ -1735,14 +1664,14 @@
 
 
     /* =====================================================
-       sessionStorage
+       현재 브라우저 세션에서만 사용하는 저장 공간
     ====================================================== */
 
     const RECENT_SEARCH_KEY =
-        "crawl_recent_searches_v1";
+        "crawl_recent_searches";
 
     const MEMO_KEY =
-        "crawl_dictionary_memos_v1";
+        "crawl_dictionary_memos";
 
     const MAX_RECENT_SEARCHES =
         5;
@@ -1758,45 +1687,54 @@
             "crawl-form"
         );
 
+
     const searchInput =
         document.getElementById(
             "crawl-search-input"
         );
+
 
     const searchButton =
         document.getElementById(
             "crawl-search-button"
         );
 
+
     const loadingOverlay =
         document.getElementById(
             "crawl-loading-overlay"
         );
+
 
     const recentList =
         document.getElementById(
             "recent-search-list"
         );
 
+
     const recentClearButton =
         document.getElementById(
             "recent-clear-button"
         );
+
 
     const memoList =
         document.getElementById(
             "memo-list"
         );
 
+
     const memoClearButton =
         document.getElementById(
             "memo-clear-button"
         );
 
+
     const memoDownloadButton =
         document.getElementById(
             "memo-download-button"
         );
+
 
     const toast =
         document.getElementById(
@@ -1806,41 +1744,46 @@
 
 
     /* =====================================================
-       HTML escape
+       HTML 특수문자 처리
     ====================================================== */
 
-    function escapeHtml(value) {
+    function escapeHtml(
+        value
+    ) {
 
-        return String(
-            value
-        )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
+        return String(value)
+
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
 
     }
 
 
 
     /* =====================================================
-       토스트
+       알림
     ====================================================== */
 
     function showToast(
@@ -1868,6 +1811,7 @@
 
         showToast.timer =
             setTimeout(
+
                 function () {
 
                     toast.classList.remove(
@@ -1875,7 +1819,9 @@
                     );
 
                 },
-                1800
+
+                2000
+
             );
 
     }
@@ -1901,12 +1847,14 @@
             searchButton.disabled =
                 true;
 
+
             searchButton.textContent =
                 "검색 중...";
 
         }
 
     }
+
 
 
     function hideLoading() {
@@ -1923,6 +1871,7 @@
 
             searchButton.disabled =
                 false;
+
 
             searchButton.textContent =
                 "검색";
@@ -1960,11 +1909,14 @@
                 );
 
 
-            return Array.isArray(
-                parsed
-            )
-                ? parsed
-                : [];
+            if (!Array.isArray(parsed)) {
+
+                return [];
+
+            }
+
+
+            return parsed;
 
         }
 
@@ -2095,6 +2047,7 @@
                 </span>
                 `;
 
+
             return;
 
         }
@@ -2103,7 +2056,10 @@
         recentList.innerHTML =
             searches.map(
 
-                keyword => {
+                function (
+                    keyword
+                ) {
+
 
                     const safeKeyword =
                         escapeHtml(
@@ -2117,18 +2073,18 @@
                         >
 
                             <button
-                                class="recent-search-word"
                                 type="button"
+                                class="recent-search-word"
                                 data-recent-search="${safeKeyword}"
                             >
                                 ${safeKeyword}
                             </button>
 
+
                             <button
-                                class="recent-search-remove"
                                 type="button"
+                                class="recent-search-remove"
                                 data-recent-remove="${safeKeyword}"
-                                title="삭제"
                             >
                                 ×
                             </button>
@@ -2143,6 +2099,10 @@
     }
 
 
+
+    /* =====================================================
+       최근 검색어 클릭
+    ====================================================== */
 
     if (recentList) {
 
@@ -2167,14 +2127,6 @@
                     const keyword =
                         searchTarget.dataset
                             .recentSearch;
-
-
-                    if (searchInput) {
-
-                        searchInput.value =
-                            keyword;
-
-                    }
 
 
                     saveRecentSearch(
@@ -2207,6 +2159,7 @@
 
                 if (removeTarget) {
 
+
                     removeRecentSearch(
 
                         removeTarget.dataset
@@ -2224,6 +2177,10 @@
 
 
 
+    /* =====================================================
+       최근 검색어 전체 삭제
+    ====================================================== */
+
     if (recentClearButton) {
 
         recentClearButton.addEventListener(
@@ -2231,6 +2188,7 @@
             "click",
 
             function () {
+
 
                 sessionStorage.removeItem(
                     RECENT_SEARCH_KEY
@@ -2241,7 +2199,7 @@
 
 
                 showToast(
-                    "최근 검색 기록을 삭제했습니다."
+                    "최근 검색어를 삭제했습니다."
                 );
 
             }
@@ -2308,7 +2266,7 @@
 
 
     /* =====================================================
-       메모
+       메모 읽기
     ====================================================== */
 
     function getMemos() {
@@ -2334,11 +2292,14 @@
                 );
 
 
-            return Array.isArray(
-                parsed
-            )
-                ? parsed
-                : [];
+            if (!Array.isArray(parsed)) {
+
+                return [];
+
+            }
+
+
+            return parsed;
 
         }
 
@@ -2351,6 +2312,10 @@
     }
 
 
+
+    /* =====================================================
+       메모 저장
+    ====================================================== */
 
     function saveMemos(
         memos
@@ -2372,6 +2337,10 @@
     }
 
 
+
+    /* =====================================================
+       메모 추가
+    ====================================================== */
 
     function addMemo(
         word,
@@ -2410,15 +2379,11 @@
 
                 memo =>
 
-                    memo.word
-                    ===
-                    word
+                    memo.word === word
 
                     &&
 
-                    memo.meaning
-                    ===
-                    meaning
+                    memo.meaning === meaning
 
             );
 
@@ -2428,6 +2393,7 @@
             showToast(
                 "이미 저장된 메모입니다."
             );
+
 
             return;
 
@@ -2469,7 +2435,7 @@
 
 
         showToast(
-            "메모에 저장했습니다."
+            "메모에 추가했습니다."
         );
 
     }
@@ -2477,7 +2443,7 @@
 
 
     /* =====================================================
-       개별 메모 추가
+       뜻 하나 메모 추가
     ====================================================== */
 
     document.addEventListener(
@@ -2543,17 +2509,9 @@
                     );
 
 
-                if (
-                    buttons.length === 0
-                ) {
-
-                    return;
-
-                }
-
-
                 let memos =
                     getMemos();
+
 
                 let addedCount =
                     0;
@@ -2561,12 +2519,15 @@
 
                 buttons.forEach(
 
-                    button => {
+                    function (
+                        button
+                    ) {
 
 
                         const word =
                             button.dataset
                                 .memoWord;
+
 
                         const meaning =
                             button.dataset
@@ -2578,15 +2539,11 @@
 
                                 memo =>
 
-                                    memo.word
-                                    ===
-                                    word
+                                    memo.word === word
 
                                     &&
 
-                                    memo.meaning
-                                    ===
-                                    meaning
+                                    memo.meaning === meaning
 
                             );
 
@@ -2647,7 +2604,7 @@
 
                         addedCount
                         +
-                        "개의 뜻을 메모에 저장했습니다."
+                        "개의 뜻을 메모에 추가했습니다."
 
                     );
 
@@ -2656,7 +2613,7 @@
                 else {
 
                     showToast(
-                        "모든 결과가 이미 저장되어 있습니다."
+                        "모든 결과가 이미 메모되어 있습니다."
                     );
 
                 }
@@ -2670,7 +2627,7 @@
 
 
     /* =====================================================
-       메모 출력
+       메모 화면 출력
     ====================================================== */
 
     function renderMemos() {
@@ -2697,6 +2654,7 @@
                 </div>
                 `;
 
+
             return;
 
         }
@@ -2705,30 +2663,26 @@
         memoList.innerHTML =
             memos.map(
 
-                memo => {
+                function (
+                    memo
+                ) {
+
 
                     return `
-                        <article
-                            class="memo-item"
-                        >
+                        <article class="memo-item">
 
-                            <div
-                                class="memo-item-header"
-                            >
+                            <div class="memo-item-header">
 
                                 <div>
 
-                                    <span
-                                        class="memo-word"
-                                    >
+                                    <span class="memo-word">
                                         ${escapeHtml(
                                             memo.word
                                         )}
                                     </span>
 
-                                    <span
-                                        class="memo-time"
-                                    >
+
+                                    <span class="memo-time">
                                         ${escapeHtml(
                                             memo.createdAt
                                         )}
@@ -2750,22 +2704,21 @@
                             </div>
 
 
-                            <p
-                                class="memo-meaning"
-                            >
+                            <p class="memo-meaning">
                                 ${escapeHtml(
                                     memo.meaning
                                 )}
                             </p>
 
 
-                            <div
-                                class="memo-source"
-                            >
+                            <div class="memo-source">
+
                                 출처 ·
+
                                 ${escapeHtml(
                                     memo.source
                                 )}
+
                             </div>
 
                         </article>
@@ -2820,9 +2773,7 @@
                     memos.filter(
 
                         memo =>
-                            memo.id
-                            !==
-                            id
+                            memo.id !== id
 
                     );
 
@@ -2845,7 +2796,7 @@
 
 
     /* =====================================================
-       메모 초기화
+       메모 전체 초기화
     ====================================================== */
 
     if (memoClearButton) {
@@ -2869,6 +2820,7 @@
                         "삭제할 메모가 없습니다."
                     );
 
+
                     return;
 
                 }
@@ -2876,7 +2828,7 @@
 
                 const confirmed =
                     window.confirm(
-                        "저장된 메모를 모두 삭제하시겠습니까?"
+                        "메모를 모두 삭제하시겠습니까?"
                     );
 
 
@@ -2908,7 +2860,8 @@
 
 
     /* =====================================================
-       TXT 저장
+       메모 TXT 파일 저장
+       app.py 수정 없음
     ====================================================== */
 
     if (memoDownloadButton) {
@@ -2929,8 +2882,9 @@
                 ) {
 
                     showToast(
-                        "저장할 메모가 없습니다."
+                        "파일로 저장할 메모가 없습니다."
                     );
+
 
                     return;
 
@@ -2945,9 +2899,11 @@
                     "네이버 국어사전 검색 메모"
                 );
 
+
                 lines.push(
                     "========================================"
                 );
+
 
                 lines.push(
                     ""
@@ -3019,26 +2975,9 @@
                     );
 
 
-                const blob =
-                    new Blob(
-
-                        [
-                            lines.join(
-                                "\n"
-                            )
-                        ],
-
-                        {
-                            type:
-                                "text/plain;charset=utf-8"
-                        }
-
-                    );
-
-
-                const url =
-                    URL.createObjectURL(
-                        blob
+                const text =
+                    lines.join(
+                        "\n"
                     );
 
 
@@ -3048,7 +2987,15 @@
                     );
 
 
-                const date =
+                link.href =
+                    "data:text/plain;charset=utf-8,"
+                    +
+                    encodeURIComponent(
+                        text
+                    );
+
+
+                const today =
                     new Date()
                         .toISOString()
                         .slice(
@@ -3057,14 +3004,10 @@
                         );
 
 
-                link.href =
-                    url;
-
-
                 link.download =
                     "dictionary_memo_"
                     +
-                    date
+                    today
                     +
                     ".txt";
 
@@ -3078,11 +3021,6 @@
 
 
                 link.remove();
-
-
-                URL.revokeObjectURL(
-                    url
-                );
 
 
                 showToast(
