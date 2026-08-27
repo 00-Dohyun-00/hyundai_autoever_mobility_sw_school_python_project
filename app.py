@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Flask, render_template, request
 
-from analysis.analyzer import analyze_default_csv
+from analysis.analyzer import analyze_default_csv, predict_defect
 from crawler.crawler import get_crawl_results
 
 app = Flask(__name__)
@@ -58,17 +58,17 @@ def model_predict():
     selected_model = request.form.get("model_name", model_options[0])
     if selected_model not in PREDICT_MODEL_INFO:
         selected_model = model_options[0]
-
     prediction = None
     if request.method == "POST":
         input_values = {
             field["name"]: request.form.get(field["name"], "")
             for field in PREDICT_FEATURE_FIELDS
         }
-        # TODO: 여기서 selected_model / input_values로 실제 모델 예측을 실행하고
-        # prediction = {"defect_label": 0 또는 1, "probability": 0.0~1.0(선택)} 형태로 채워준다.
-        prediction = None
-
+        try:
+            prediction = predict_defect(selected_model, input_values)
+        except FileNotFoundError:
+            # 아직 홈 화면에서 분석(학습)이 한 번도 실행되지 않은 경우
+            prediction = None
     return render_template(
         "model.html",
         model_options=model_options,
@@ -77,7 +77,6 @@ def model_predict():
         feature_fields=PREDICT_FEATURE_FIELDS,
         prediction=prediction,
     )
-
 
 @app.route("/crawl-result")
 def crawl_result():

@@ -5,7 +5,9 @@ Streamlit이 아닌 Flask/Jinja2 페이지에서 보여주기 위해 이식한 �
 
 import base64
 import io
+from pathlib import Path
 
+import joblib
 import matplotlib
 
 matplotlib.use("Agg")
@@ -34,6 +36,17 @@ plt.rcParams["axes.unicode_minus"] = False
 # classification.py의 슬라이더 기본값을 그대로 고정 threshold로 사용한다.
 LOG_THRESHOLD = 0.50
 RF_THRESHOLD = 0.30
+
+# 예측 탭에서 재사용할 학습된 모델/기본값 저장 위치.
+# 이 파일 기준 analysis/ 의 부모(=project_root)/models 에 저장한다.
+MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
+MODELS_DIR.mkdir(exist_ok=True)
+
+MODEL_FILENAMES = {
+    "Logistic Regression": "logistic_regression.joblib",
+    "Random Forest": "random_forest.joblib",
+}
+DEFAULTS_PATH = MODELS_DIR / "feature_defaults.joblib"
 
 
 def _fig_to_base64(fig):
@@ -160,6 +173,22 @@ def analyze_defect_classification(df):
     ])
     rf_model.fit(X_train, y_train)
     rf_proba = rf_model.predict_proba(X_test)[:, 1]
+
+    # --- 예측 탭(/model)에서 재사용할 모델과 피처 기본값 저장 ---
+    joblib.dump(log_model, MODELS_DIR / MODEL_FILENAMES["Logistic Regression"])
+    joblib.dump(rf_model, MODELS_DIR / MODEL_FILENAMES["Random Forest"])
+
+    feature_defaults = {
+        "numeric_cols": numeric_cols,
+        "categorical_cols": categorical_cols,
+        # 폼에 없는 피처는 수치형=평균, 범주형=최빈값으로 채운다.
+        "values": {
+            **X[numeric_cols].mean().to_dict(),
+            **{c: X[c].mode().iloc[0] for c in categorical_cols},
+        },
+    }
+    joblib.dump(feature_defaults, DEFAULTS_PATH)
+    # --- 저장 끝 ---
 
     log_result = _model_result(
         "Logistic Regression", log_model, y_test, log_proba, LOG_THRESHOLD,
