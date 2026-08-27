@@ -80,9 +80,8 @@ def create_driver():
         options = webdriver.ChromeOptions()
 
         # Chrome 창 숨기기
-        options.add_argument(
-            "--headless=new"
-        )
+        #   "--headless=new"
+        #)
 
         options.add_argument(
             "--disable-notifications"
