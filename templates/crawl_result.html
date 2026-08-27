@@ -2,17 +2,415 @@
 
 {% block title %}크롤링 - 사출 데이터 대시보드{% endblock %}
 
+
 {% block content %}
 
-<section>
 
-  <h2>크롤링 검색</h2>
+<style>
 
+  /* ======================================================== */
+  /* 검색 페이지 */
+  /* ======================================================== */
+
+  .crawl-page {
+    position: relative;
+  }
+
+
+  .crawl-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+
+  .crawl-search-form input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid #d7dce2;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+
+
+  .crawl-search-form button {
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+
+  .crawl-search-form button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+
+  /* ======================================================== */
+  /* 결과 카드 */
+  /* ======================================================== */
+
+  .crawl-result-card {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid #e3e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+  }
+
+
+  .crawl-result-title {
+    margin: 4px 0 14px;
+    font-size: 24px;
+  }
+
+
+  .crawl-result-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+
+  .crawl-result-title a:hover {
+    text-decoration: underline;
+  }
+
+
+  .crawl-result-meta {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #68707a;
+  }
+
+
+  .crawl-meaning-list {
+    margin: 0;
+    padding-left: 22px;
+  }
+
+
+  .crawl-meaning-list li {
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+
+
+  /* ======================================================== */
+  /* 검색어 != 실제 결과 단어 */
+  /* ======================================================== */
+
+  .keyword-mismatch-warning {
+    margin: 0 0 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #c62828;
+    font-weight: 600;
+  }
+
+
+  /* ======================================================== */
+  /* 치명적이지 않은 부분 경고 */
+  /* ======================================================== */
+
+  .crawler-warning-box {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #e2c46e;
+    border-radius: 8px;
+    background: #fff8df;
+  }
+
+
+  .crawler-warning-box p {
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+
+  .crawler-warning-code {
+    font-family: monospace;
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+
+  /* ======================================================== */
+  /* 로딩 화면 */
+  /* ======================================================== */
+
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.78);
+
+    backdrop-filter: blur(2px);
+  }
+
+
+  .loading-overlay[hidden] {
+    display: none !important;
+  }
+
+
+  .loading-panel {
+    min-width: 260px;
+    padding: 24px 28px;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+      0 12px 40px
+      rgba(0, 0, 0, 0.16);
+
+    text-align: center;
+  }
+
+
+  .loading-spinner {
+    width: 38px;
+    height: 38px;
+
+    margin: 0 auto 14px;
+
+    border: 4px solid #e5e7eb;
+
+    border-top-color: #555555;
+
+    border-radius: 50%;
+
+    animation:
+      crawl-spin
+      0.8s
+      linear
+      infinite;
+  }
+
+
+  .loading-title {
+    margin: 0 0 6px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+  }
+
+
+  .loading-message {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6c737d;
+
+    line-height: 1.5;
+  }
+
+
+  @keyframes crawl-spin {
+
+    to {
+      transform: rotate(360deg);
+    }
+
+  }
+
+
+  /* ======================================================== */
+  /* 오류 팝업 */
+  /* ======================================================== */
+
+  .crawler-error-dialog {
+
+    width:
+      min(
+        520px,
+        calc(100vw - 32px)
+      );
+
+    border: 0;
+
+    border-radius: 14px;
+
+    padding: 0;
+
+    box-shadow:
+      0 18px 60px
+      rgba(0, 0, 0, 0.25);
+  }
+
+
+  .crawler-error-dialog::backdrop {
+    background:
+      rgba(0, 0, 0, 0.45);
+  }
+
+
+  .crawler-error-content {
+    padding: 24px;
+  }
+
+
+  .crawler-error-badge {
+
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    background: #fde7e7;
+
+    color: #b71c1c;
+
+    font-size: 11px;
+
+    font-family: monospace;
+
+    font-weight: 700;
+  }
+
+
+  .crawler-error-title {
+
+    margin: 0 0 12px;
+
+    color: #b71c1c;
+
+    font-size: 21px;
+  }
+
+
+  .crawler-error-message {
+
+    margin: 0 0 12px;
+
+    line-height: 1.6;
+  }
+
+
+  .crawler-error-hint {
+
+    margin: 0;
+
+    padding: 12px 14px;
+
+    border-radius: 8px;
+
+    background: #f5f6f8;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+  }
+
+
+  .crawler-error-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 18px;
+  }
+
+
+  .crawler-error-actions button {
+
+    padding: 9px 16px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+  }
+
+
+  /* ======================================================== */
+  /* 팝업을 닫아도 남아있는 오류 요약 */
+  /* ======================================================== */
+
+  .crawler-inline-error {
+
+    margin-top: 18px;
+
+    padding: 14px;
+
+    border:
+      1px solid
+      #efb1b1;
+
+    border-radius: 10px;
+
+    background: #fff3f3;
+
+    color: #8b1f1f;
+
+    font-size: 14px;
+  }
+
+
+  /* ======================================================== */
+  /* 모바일 */
+  /* ======================================================== */
+
+  @media (max-width: 640px) {
+
+    .crawl-search-form {
+
+      align-items: stretch;
+
+      flex-direction: column;
+
+    }
+
+
+    .crawl-search-form button {
+
+      width: 100%;
+
+    }
+
+  }
+
+</style>
+
+
+
+<section class="crawl-page">
+
+
+  <h2>
+    크롤링 검색
+  </h2>
+
+
+
+  <!-- ===================================================== -->
+  <!-- 검색창 -->
+  <!-- ===================================================== -->
 
   <form
+    id="crawl-form"
+    class="crawl-search-form"
     action="/crawl-result"
     method="get"
   >
+
 
     <input
       type="text"
@@ -23,72 +421,551 @@
       required
     >
 
-    <button type="submit">
+
+    <button
+      id="crawl-submit-button"
+      type="submit"
+    >
       검색
     </button>
 
+
   </form>
+
 
 
   {% set keyword = request.args.get('keyword', '') %}
 
 
+
+  <!-- ===================================================== -->
+  <!-- 검색을 실행한 경우 -->
+  <!-- ===================================================== -->
+
   {% if keyword %}
+
 
     <h2>
       "{{ keyword }}" 검색 결과
     </h2>
 
 
+
     {% if results %}
 
-      <p>
-        총 {{ results|length }}개의 결과를 찾았습니다.
-      </p>
+
+      {% set result = results[0] %}
 
 
-      <ul class="crawl-list">
 
-        {% for item in results %}
+      <!-- ================================================= -->
+      <!-- 정상 결과 -->
+      <!-- ================================================= -->
 
-          <li>
+      {% if result.status == "ok" %}
+
+
+        <div class="crawl-result-card">
+
+
+
+          <!-- ============================================= -->
+          <!-- 검색어 != 실제 결과 단어 -->
+          <!-- ============================================= -->
+
+          {% if result.mismatch %}
+
+
+            <p class="keyword-mismatch-warning">
+
+              ⚠ 입력 검색어
+              "{{ result.input_keyword }}"와
+
+              실제 검색 결과 단어
+              "{{ result.title }}"가 일치하지 않습니다.
+
+              아래 뜻은 실제 검색 결과 단어를 기준으로 표시됩니다.
+
+            </p>
+
+
+          {% endif %}
+
+
+
+          <!-- ============================================= -->
+          <!-- 실제 결과 단어 -->
+          <!-- ============================================= -->
+
+          <h3 class="crawl-result-title">
+
 
             <a
-              href="{{ item.url }}"
+              href="{{ result.url }}"
               target="_blank"
               rel="noopener noreferrer"
             >
-              {{ item.title }}
+
+              {{ result.title }}
+
             </a>
 
-            <p>
-              {{ item.summary }}
+
+          </h3>
+
+
+
+          <!-- ============================================= -->
+          <!-- 뜻 개수 -->
+          <!-- ============================================= -->
+
+          <p class="crawl-result-meta">
+
+            총
+            {{ result.meanings|length }}개의
+            뜻을 찾았습니다.
+
+          </p>
+
+
+
+          <!-- ============================================= -->
+          <!-- 뜻 -->
+          <!-- ============================================= -->
+
+          <ol class="crawl-meaning-list">
+
+
+            {% for meaning in result.meanings %}
+
+
+              <li>
+
+                {{ meaning }}
+
+              </li>
+
+
+            {% endfor %}
+
+
+          </ol>
+
+
+
+          <!-- ============================================= -->
+          <!-- 부분 오류 / 경고 -->
+          <!-- ============================================= -->
+
+          {% if result.warnings %}
+
+
+            <div class="crawler-warning-box">
+
+
+              {% for warning in result.warnings %}
+
+
+                <p>
+
+                  <span class="crawler-warning-code">
+
+                    {{ warning.code }}
+
+                  </span>
+
+                  —
+
+                  {{ warning.message }}
+
+                </p>
+
+
+              {% endfor %}
+
+
+            </div>
+
+
+          {% endif %}
+
+
+        </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- 크롤링 오류 -->
+      <!-- ================================================= -->
+
+      {% elif result.status == "error" %}
+
+
+        {% set error = result.error %}
+
+
+
+        <!-- 팝업을 닫은 후에도 페이지에 남아있는 오류 -->
+
+        <div class="crawler-inline-error">
+
+          {{ error.title }}
+
+          —
+
+          {{ error.message }}
+
+        </div>
+
+
+
+        <!-- 오류 팝업 -->
+
+        <dialog
+          id="crawler-error-dialog"
+          class="crawler-error-dialog"
+        >
+
+
+          <div class="crawler-error-content">
+
+
+            <div class="crawler-error-badge">
+
+              {{ error.code }}
+
+            </div>
+
+
+
+            <h3 class="crawler-error-title">
+
+              {{ error.title }}
+
+            </h3>
+
+
+
+            <p class="crawler-error-message">
+
+              {{ error.message }}
+
             </p>
 
-          </li>
 
-        {% endfor %}
 
-      </ul>
+            <p class="crawler-error-hint">
+
+              <strong>
+                확인해볼 내용
+              </strong>
+
+              <br>
+
+              {{ error.hint }}
+
+            </p>
+
+
+
+            <div class="crawler-error-actions">
+
+
+              <button
+                type="button"
+                id="crawler-error-close"
+              >
+
+                닫기
+
+              </button>
+
+
+            </div>
+
+
+          </div>
+
+
+        </dialog>
+
+
+      {% endif %}
+
 
 
     {% else %}
 
+
       <p>
-        "{{ keyword }}"에 대한 검색 결과가 없습니다.
+
+        "{{ keyword }}"에 대한
+        검색 결과가 없습니다.
+
       </p>
+
 
     {% endif %}
 
 
+
+  <!-- ===================================================== -->
+  <!-- 검색 전 -->
+  <!-- ===================================================== -->
+
   {% else %}
+
 
     <p>
       검색어를 입력해주세요.
     </p>
 
+
   {% endif %}
 
+
 </section>
+
+
+
+<!-- ======================================================= -->
+<!-- 검색 중 로딩 화면 -->
+<!-- ======================================================= -->
+
+<div
+  id="crawl-loading-overlay"
+  class="loading-overlay"
+  hidden
+  aria-live="polite"
+  aria-busy="true"
+>
+
+
+  <div class="loading-panel">
+
+
+    <div class="loading-spinner">
+    </div>
+
+
+    <p class="loading-title">
+
+      검색 중입니다
+
+    </p>
+
+
+    <p class="loading-message">
+
+      네이버 국어사전에서
+      검색 결과를 확인하고 있습니다.
+
+      <br>
+
+      잠시 동안 화면이 그대로 보여도 정상입니다.
+
+    </p>
+
+
+  </div>
+
+
+</div>
+
+
+
+<script>
+
+  (function () {
+
+
+    const form =
+      document.getElementById(
+        "crawl-form"
+      );
+
+
+    const overlay =
+      document.getElementById(
+        "crawl-loading-overlay"
+      );
+
+
+    const submitButton =
+      document.getElementById(
+        "crawl-submit-button"
+      );
+
+
+    /* ===================================================== */
+    /* 로딩 표시 */
+    /* ===================================================== */
+
+    function showLoading() {
+
+
+      if (overlay) {
+
+        overlay.hidden = false;
+
+      }
+
+
+      if (submitButton) {
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+          "검색 중...";
+
+      }
+
+    }
+
+
+
+    /* ===================================================== */
+    /* 로딩 숨김 */
+    /* ===================================================== */
+
+    function hideLoading() {
+
+
+      if (overlay) {
+
+        overlay.hidden = true;
+
+      }
+
+
+      if (submitButton) {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          "검색";
+
+      }
+
+    }
+
+
+
+    /* ===================================================== */
+    /* 검색 버튼 클릭 */
+    /* ===================================================== */
+
+    if (form) {
+
+
+      form.addEventListener(
+
+        "submit",
+
+        function () {
+
+
+          showLoading();
+
+
+        }
+
+      );
+
+
+    }
+
+
+
+    /* ===================================================== */
+    /* 뒤로가기 / 캐시 복원 대응 */
+    /* ===================================================== */
+
+    window.addEventListener(
+
+      "pageshow",
+
+      function () {
+
+
+        hideLoading();
+
+
+      }
+
+    );
+
+
+
+    /* ===================================================== */
+    /* 오류창 */
+    /* ===================================================== */
+
+    const errorDialog =
+      document.getElementById(
+        "crawler-error-dialog"
+      );
+
+
+    const errorCloseButton =
+      document.getElementById(
+        "crawler-error-close"
+      );
+
+
+
+    if (errorDialog) {
+
+
+      if (
+
+        typeof errorDialog.showModal
+          === "function"
+
+        &&
+
+        !errorDialog.open
+
+      ) {
+
+
+        errorDialog.showModal();
+
+
+      }
+
+    }
+
+
+
+    if (
+      errorDialog
+      &&
+      errorCloseButton
+    ) {
+
+
+      errorCloseButton.addEventListener(
+
+        "click",
+
+        function () {
+
+
+          errorDialog.close();
+
+
+        }
+
+      );
+
+
+    }
+
+
+  })();
+
+</script>
+
 
 {% endblock %}
