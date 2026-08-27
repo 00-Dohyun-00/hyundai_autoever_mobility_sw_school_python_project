@@ -1,0 +1,20 @@
+.venv
+venv
+env
+
+.idea
+.vercel
+
+.git
+.github
+
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+.pytest_cachegit status
+.mypy_cache
+
+.DS_Store
+Thumbs.db
