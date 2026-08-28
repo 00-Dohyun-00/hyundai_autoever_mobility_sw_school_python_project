@@ -27,6 +27,19 @@ https://hyundai-autoever-mobility-sw-school.vercel.app/
 | `/model` | 모델 예측 | 모델 선택 + 10개 공정 파라미터 입력 → "예측하기" 클릭 시 정상/불량 예측 결과 표시 |
 | `/crawl-result` | 사전 검색 | `?source=naver`(Selenium + 네이버 국어사전 크롤링) 또는 `?source=kli`(국립국어원 온용어 Open API)로 단어 검색. `source` 없이 접속하면 두 방식 중 선택하는 화면만 표시 |
 
+<img width="1917" height="892" alt="스크린샷 2026-08-28 104919" src="https://github.com/user-attachments/assets/9a36ef2d-bc5b-45bc-bdc4-cf169273226b" />
+<img width="1917" height="903" alt="스크린샷 2026-08-28 104910" src="https://github.com/user-attachments/assets/5facbf78-d937-431e-8ee4-f59ba5b1344f" />
+<img width="1917" height="908" alt="스크린샷 2026-08-28 104858" src="https://github.com/user-attachments/assets/cc937088-4cad-4eca-ae61-0f9dcb13f672" />
+<img width="1917" height="903" alt="스크린샷 2026-08-28 104929" src="https://github.com/user-attachments/assets/19e55eeb-c08f-4c9f-a48a-c6e793829fd3" />
+
+<img width="1917" height="902" alt="스크린샷 2026-08-28 104955" src="https://github.com/user-attachments/assets/c75e4aa7-e876-4812-86c3-2bcf22a0b034" />
+
+<img width="1917" height="905" alt="스크린샷 2026-08-28 105038" src="https://github.com/user-attachments/assets/0e5782b9-ba90-41c4-8721-59d2d64ff717" />
+<img width="1917" height="903" alt="스크린샷 2026-08-28 105008" src="https://github.com/user-attachments/assets/1b98a654-2291-4596-8837-578dadb90a13" />
+
+
+
+
 ## 파일/폴더 역할
 
 | 경로 | 역할 |
