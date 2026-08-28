@@ -33,11 +33,11 @@ https://hyundai-autoever-mobility-sw-school.vercel.app/
 
 <table>
 <tr>
-<td><img width="480" alt="모델 학습 화면 1" src="https://github.com/user-attachments/assets/9a36ef2d-bc5b-45bc-bdc4-cf169273226b" /></td>
-<td><img width="480" alt="모델 학습 화면 2" src="https://github.com/user-attachments/assets/5facbf78-d937-431e-8ee4-f59ba5b1344f" /></td>
+<td><img width="480" alt="모델 학습 화면 1" src="https://github.com/user-attachments/assets/cc937088-4cad-4eca-ae61-0f9dcb13f672" /></td>
+<td><img width="480" alt="모델 학습 화면 2" src="https://github.com/user-attachments/assets/9a36ef2d-bc5b-45bc-bdc4-cf169273226b" /></td>
 </tr>
 <tr>
-<td><img width="480" alt="모델 학습 화면 3" src="https://github.com/user-attachments/assets/cc937088-4cad-4eca-ae61-0f9dcb13f672" /></td>
+<td><img width="480" alt="모델 학습 화면 3" src="https://github.com/user-attachments/assets/5facbf78-d937-431e-8ee4-f59ba5b1344f" /></td>
 <td><img width="480" alt="모델 학습 화면 4" src="https://github.com/user-attachments/assets/19e55eeb-c08f-4c9f-a48a-c6e793829fd3" /></td>
 </tr>
 </table>
